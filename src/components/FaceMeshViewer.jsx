@@ -17,6 +17,7 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
   const srcIndexRef = useRef(null);
   const meshRef = useRef(null);
   const showTexureRef = useRef(showTexure);
+  const basePath = import.meta.env.BASE_URL;
 
   useEffect(() => {
     let landmarker;
@@ -102,7 +103,7 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       if (!isMounted) return;
 
       landmarker = await FaceLandmarker.createFromOptions(fileset, {
-        baseOptions: { modelAssetPath: "/face_landmarker.task" },
+        baseOptions: { modelAssetPath: basePath + "face_landmarker.task" },
         runningMode: isVideo ? "VIDEO" : "IMAGE",
         numFaces: 1,
       });
@@ -121,7 +122,7 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       sceneRef.current = scene;
       cameraRef.current = camera;
 
-      const objText = await fetch("/canonical_face_model.obj").then((r) => r.text());
+      const objText = await fetch(basePath + "canonical_face_model.obj").then((r) => r.text());
       const { geometry, srcIndexOfVertex } = parseOBJ(objText);
       geomRef.current = geometry;
       srcIndexRef.current = srcIndexOfVertex;

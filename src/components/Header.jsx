@@ -8,11 +8,12 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
   const counterRef = useRef(null);
+  const basePath = import.meta.env.BASE_URL;
 
   const handleDownload = (e) => {
     e.stopPropagation();
     const link = document.createElement('a');
-    link.href = '/face_mesh_2d.png';
+    link.href = basePath + 'face_mesh_2d.png';
     link.download = 'face_mesh_2d.png';
     document.body.appendChild(link);
     link.click();
@@ -76,7 +77,7 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
                 {showTexure ? "ON" : "OFF"}
               </button>
             </div>
-            <div className="menu-item sample" onClick={(e) => { e.stopPropagation(); setTextureImage("/mask_sample.png"); }}>
+            <div className="menu-item sample" onClick={(e) => { e.stopPropagation(); setTextureImage(basePath + "mask_sample.png"); }}>
               📁 Use sample mask
             </div>
             <div className="menu-item upload" onClick={handleUploadMask}>
@@ -102,7 +103,7 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
                 </button>
                 {type === "image" && sourceType === "image" && (
                   <div className="sub-options">
-                    <div className="menu-item sample" onClick={(e) => { e.stopPropagation(); setImageSource("/image_sample.jpg"); }}>
+                    <div className="menu-item sample" onClick={(e) => { e.stopPropagation(); setImageSource(basePath + "image_sample.jpg"); }}>
                       📁 Use sample image
                     </div>
                     <div className="menu-item upload" onClick={handleUploadImage}>
@@ -112,7 +113,7 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
                 )}
                 {type === "video" && sourceType === "video" && (
                   <div className="sub-options">
-                    <div className="menu-item sample" onClick={(e) => { e.stopPropagation(); setVideoSource("/movie_sample.mov"); }}>
+                    <div className="menu-item sample" onClick={(e) => { e.stopPropagation(); setVideoSource(basePath + "movie_sample.mov"); }}>
                       📁 Use sample video
                     </div>
                     <div className="menu-item upload" onClick={handleUploadVideo}>
@@ -142,7 +143,7 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
 
             <div className="credit-item">
               <div className="credit-label">🖼️ Sample Image Source</div>
-              <img src="image_sample.jpg" className="img_thumbnail" />
+              <img src={basePath + "image_sample.jpg"} className="img_thumbnail" />
               <div className="credit-text">何かの動作の解説をするマッチョ</div>
               <div className="credit-text">マッスルプラス</div>
               <a
@@ -175,12 +176,12 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
               <img src="author_thumbnail.png" className="author_thumbnail" />
               <div className="credit-text">mo256man</div>
               <a
-                href="https://github.com/mo256man"
+                href="https://github.com/mo256man/mediapipe_facemesh_demo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="credit-link"
               >
-                https://github.com/mo256man
+                https://github.com/mo256man/mediapipe_facemesh_demo
               </a>
             </div>
 

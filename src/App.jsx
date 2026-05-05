@@ -4,11 +4,12 @@ import Mp from './components/Mp'
 import FaceMeshViewer from './components/FaceMeshViewer'
 
 function App() {
+  const basePath = import.meta.env.BASE_URL;
   const [showTexure, setShowTexure] = useState(true);
   const [sourceType, setSourceType] = useState("none");
-  const [textureImage, setTextureImage] = useState("/mask_sample.png");
-  const [imageSource, setImageSource] = useState("/image_sample.jpg");
-  const [videoSource, setVideoSource] = useState("/movie_sample.mov");
+  const [textureImage, setTextureImage] = useState(basePath + "mask_sample.png");
+  const [imageSource, setImageSource] = useState(basePath + "image_sample.jpg");
+  const [videoSource, setVideoSource] = useState(basePath + "movie_sample.mov");
 
   return (
     <>
