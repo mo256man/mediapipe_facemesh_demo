@@ -67,7 +67,8 @@ html, body {
   min-width: 220px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   border-radius: 0 0 6px 6px;
-  overflow: hidden;
+  overflow: visible;
+  z-index: 1000;
 }
 
 .section-title {
@@ -152,14 +153,41 @@ html, body {
   background: #383838;
 }
 
-.source-btn.active {
+.source-btn.active-selected {
   background: #2196F3;
+  color: #fff;
+  font-weight: bold;
+}
+
+.source-btn.active-open {
+  background: #FF9800;
   color: #fff;
   font-weight: bold;
 }
 
 .sub-options {
   background: #222;
+}
+
+.submenu-popup {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  margin-left: 8px;
+  background: #222;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  z-index: 2000;
+  padding: 12px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.submenu-popup-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: fit-content;
 }
 
 .header-title {
@@ -283,4 +311,30 @@ html, body {
 
 .mp-canvas {
   pointer-events: none;
+}
+
+.img_thumbnail {
+  max-width: 200px;
+  height: auto;
+}
+
+.img_base {
+  width: 200px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #000;
+}
+
+.img_base.selected {
+  outline: 3px solid #2196F3;
+}
+
+.img_base img {
+  max-height: 160px;
+  max-width: 200px;
+  object-fit: contain;
 }

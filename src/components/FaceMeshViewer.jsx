@@ -17,6 +17,8 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
   const srcIndexRef = useRef(null);
   const meshRef = useRef(null);
   const showTexureRef = useRef(showTexure);
+  const imgCanvasRef = useRef(null);
+  const landmarkerRef = useRef(null);
   const basePath = import.meta.env.BASE_URL;
 
   useEffect(() => {
@@ -71,10 +73,10 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
             img.onerror = rej;
             img.src = sourcePath;
           });
-        imgCanvas = document.createElement("canvas");
-        imgCanvas.width = img.width;
-        imgCanvas.height = img.height;
-        imgCanvas.getContext("2d").drawImage(img, 0, 0);
+        imgCanvasRef.current = document.createElement("canvas");
+        imgCanvasRef.current.width = img.width;
+        imgCanvasRef.current.height = img.height;
+        imgCanvasRef.current.getContext("2d").drawImage(img, 0, 0);
         imgW = img.width;
         imgH = img.height;
       } else if (sourceType === "none") {
@@ -102,7 +104,7 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       );
       if (!isMounted) return;
 
-      landmarker = await FaceLandmarker.createFromOptions(fileset, {
+      landmarkerRef.current = await FaceLandmarker.createFromOptions(fileset, {
         baseOptions: { modelAssetPath: basePath + "face_landmarker.task" },
         runningMode: isVideo ? "VIDEO" : "IMAGE",
         numFaces: 1,
@@ -226,7 +228,7 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       if (!running) return;
       const vid = videoRef.current;
       if (vid.readyState >= 2) {
-        const res = landmarker.detectForVideo(vid, performance.now());
+        const res = landmarkerRef.current.detectForVideo(vid, performance.now());
         if (res.faceLandmarks?.length) {
           applyLandmarks(res.faceLandmarks[0]);
           if (meshRef.current) meshRef.current.visible = showTexureRef.current;
@@ -239,7 +241,7 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
     }
 
     function detectImage() {
-      const res = landmarker.detect(imgCanvas);
+      const res = landmarkerRef.current.detect(imgCanvasRef.current);
       if (res.faceLandmarks?.length) {
         applyLandmarks(res.faceLandmarks[0]);
         if (meshRef.current) meshRef.current.visible = showTexureRef.current;
@@ -261,7 +263,7 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       requestAnimationFrame(loopNone);
     }
 
-    function handleMouseMove(e) {
+    function handlePointerMove(e) {
       const deltaX = e.clientX - prevMouseX;
       const deltaY = e.clientY - prevMouseY;
       if (isMouseDown) {
@@ -272,35 +274,35 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       prevMouseY = e.clientY;
     }
 
-    function handleMouseDown(e) {
-      if (e.button === 0) {
+    function handlePointerDown(e) {
+      if (e.isPrimary) {
         isMouseDown = true;
         prevMouseX = e.clientX;
         prevMouseY = e.clientY;
       }
     }
 
-    function handleMouseUp() {
+    function handlePointerUp() {
       isMouseDown = false;
     }
 
     requestAnimationFrame(() => { init(); });
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("pointerup", handlePointerUp);
 
     return () => {
       isMounted = false;
       running = false;
-      landmarker?.close();
+      landmarkerRef.current?.close();
       const vid = videoRef.current;
       if (vid?.srcObject) {
         vid.srcObject.getTracks().forEach(t => t.stop());
         vid.srcObject = null;
       }
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointerup", handlePointerUp);
     };
   }, [sourceType, imageSource, videoSource]);
 
@@ -313,6 +315,22 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       }
     }
   }, [showTexure]);
+
+  const reloadTexture = () => {
+    if (meshRef.current && rendererRef.current && sceneRef.current && cameraRef.current) {
+      const img = new Image();
+      img.onload = () => {
+        const tex = new THREE.Texture(img);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.needsUpdate = true;
+        meshRef.current.material.dispose();
+        meshRef.current.material = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      };
+      img.onerror = (e) => console.error("Image load failed:", e);
+      img.src = textureImage;
+    }
+  };
 
   useEffect(() => {
     if (meshRef.current && rendererRef.current && sceneRef.current && cameraRef.current) {
