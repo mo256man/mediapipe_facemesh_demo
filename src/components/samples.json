@@ -1,23 +1,23 @@
 {"texture":
   [
     { "filename": "face_mesh.png",
-      "text":"face mesh"},
+      "name":"face mesh"},
     { "filename": "mask_sample.png",
-      "text":"猗窩座"}
+      "name":"猗窩座"}
   ],
   "iamge":
   [
     { "filename": "image_sample.jpg",
-      "text":"マッチョ"},
+      "name":"マッチョ"},
     { "filename": "takao.jpg",
-      "text":"天狗"},
+      "name":"天狗"},
     { "filename": "baby.jpg",
-      "text":"赤ちゃん"}
+      "name":"赤ちゃん"}
   ],
   "video":
     [
       {"filename": "movie_sample.mov",
       "thumbnail":"movie_thumbnail.jpg",
-      "text":"顔を拭く"}
+      "name":"顔を拭く"}
     ]
 }

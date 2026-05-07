@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, forwardRef } from "react";
 import "./Draw.css";
 
 const BG_SRC = `${import.meta.env.BASE_URL}face_mesh_2d.png`;
@@ -7,9 +7,14 @@ const BG_LABELS = { visible: "🖼️ BG", translucent: "🖼️ BG½", hidden: 
 const DRAW_MODES = ["visible", "translucent"];
 const DRAW_LABELS = { visible: "✏️ Draw", translucent: "✏️ Draw½" };
 
-export default function Draw() {
+const Draw = forwardRef(function Draw({ savedImages: externalSavedImages, setSavedImages: externalSetSavedImages }, forwardedRef) {
   const bgCanvasRef = useRef(null);
   const drawCanvasRef = useRef(null);
+  const setDrawCanvasRef = (el) => {
+    drawCanvasRef.current = el;
+    if (typeof forwardedRef === "function") forwardedRef(el);
+    else if (forwardedRef) forwardedRef.current = el;
+  };
   const containerRef = useRef(null);
   const isDrawingRef = useRef(false);
   const lastPosRef = useRef(null);
@@ -21,8 +26,7 @@ export default function Draw() {
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const [bgMode, setBgMode] = useState("visible");
   const [drawMode, setDrawMode] = useState("visible");
-  const [savedImages, setSavedImages] = useState([]);
-  const [showGallery, setShowGallery] = useState(false);
+  const [savedImages, setSavedImages] = useState(externalSavedImages || []);
 
   /* --- 背景画像読み込み --- */
   useEffect(() => {
@@ -39,6 +43,13 @@ export default function Draw() {
     };
     img.src = BG_SRC;
   }, []);
+
+  /* --- 外部からの savedImages 更新を同期 --- */
+  useEffect(() => {
+    if (externalSavedImages) {
+      setSavedImages(externalSavedImages);
+    }
+  }, [externalSavedImages]);
 
   /* --- コンテナリサイズ監視 --- */
   useEffect(() => {
@@ -143,26 +154,52 @@ export default function Draw() {
   /* --- メモリ保存 --- */
   const saveToMemory = () => {
     const dataUrl = drawCanvasRef.current.toDataURL("image/png");
-    setSavedImages((prev) => [
-      ...prev,
+    const newImages = [
+      ...savedImages,
       { id: Date.now(), dataUrl, timestamp: new Date().toLocaleTimeString() },
-    ]);
+    ];
+    setSavedImages(newImages);
+    if (externalSetSavedImages) {
+      externalSetSavedImages(newImages);
+    }
   };
 
   const deleteFromMemory = (id) => {
-    setSavedImages((prev) => prev.filter((img) => img.id !== id));
+    const newImages = savedImages.filter((img) => img.id !== id);
+    setSavedImages(newImages);
+    if (externalSetSavedImages) {
+      externalSetSavedImages(newImages);
+    }
   };
 
-  /* --- ギャラリーの画像をドローレイヤーに読み込み --- */
-  const loadToCanvas = (dataUrl) => {
-    const img = new Image();
-    img.onload = () => {
-      const ctx = drawCanvasRef.current.getContext("2d");
-      ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
-      ctx.drawImage(img, 0, 0);
-    };
-    img.src = dataUrl;
-    setShowGallery(false);
+  /* --- ローカルにダウンロード --- */
+  const downloadDrawing = () => {
+    // 1000x1000 のキャンバスを作成してリサイズ
+    const resizedCanvas = document.createElement("canvas");
+    resizedCanvas.width = 1000;
+    resizedCanvas.height = 1000;
+    const resizedCtx = resizedCanvas.getContext("2d");
+
+    // 現在のキャンバスを新しいキャンバスにコピー（リサイズ）
+    const sourceCanvas = drawCanvasRef.current;
+    resizedCtx.drawImage(sourceCanvas, 0, 0, sourceCanvas.width, sourceCanvas.height, 0, 0, 1000, 1000);
+
+    const dataUrl = resizedCanvas.toDataURL("image/png");
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const date = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    const filename = `texture_${year}${month}${date}_${hours}${minutes}${seconds}.png`;
+
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -208,11 +245,8 @@ export default function Draw() {
         <button className="draw-btn draw-save-btn" onClick={saveToMemory}>
           💾 Save
         </button>
-        <button
-          className={`draw-btn ${showGallery ? "active" : ""}`}
-          onClick={() => setShowGallery((v) => !v)}
-        >
-          📋 List ({savedImages.length})
+        <button className="draw-btn" onClick={downloadDrawing}>
+          📥 Download
         </button>
       </div>
 
@@ -225,7 +259,7 @@ export default function Draw() {
             className="draw-bg-canvas"
           />
           <canvas
-            ref={drawCanvasRef}
+            ref={setDrawCanvasRef}
             width={canvasSize.width}
             height={canvasSize.height}
             className="draw-draw-canvas"
@@ -239,37 +273,9 @@ export default function Draw() {
             onTouchEnd={endDraw}
           />
         </div>
-
-        {showGallery && (
-          <div className="draw-gallery">
-            <div className="draw-gallery-title">Saved ({savedImages.length})</div>
-            {savedImages.length === 0 && (
-              <div className="draw-gallery-empty">No saved images</div>
-            )}
-            <div className="draw-gallery-list">
-              {savedImages.map((img) => (
-                <div key={img.id} className="draw-gallery-item">
-                  <img
-                    className="draw-gallery-thumb"
-                    src={img.dataUrl}
-                    alt=""
-                    onClick={() => loadToCanvas(img.dataUrl)}
-                  />
-                  <div className="draw-gallery-info">
-                    <span className="draw-gallery-time">{img.timestamp}</span>
-                    <button
-                      className="draw-gallery-delete"
-                      onClick={() => deleteFromMemory(img.id)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
-}
+});
+
+export default Draw;

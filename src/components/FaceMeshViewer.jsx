@@ -6,7 +6,7 @@ import { setupScene } from "./setupScene";
 
 const MIRROR = false;
 
-export default function Mp({ showTexure, sourceType, textureImage, imageSource, videoSource }) {
+export default function Mp({ showTexure, sourceType, textureImage, imageSource, videoSource, drawCanvas }) {
   const containerRef = useRef(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -19,6 +19,9 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
   const showTexureRef = useRef(showTexure);
   const imgCanvasRef = useRef(null);
   const landmarkerRef = useRef(null);
+  const drawCanvasTexRef = useRef(null);
+  const drawCanvasPropRef = useRef(drawCanvas);
+  const isPointerOverViewerRef = useRef(false);
   const basePath = import.meta.env.BASE_URL;
 
   useEffect(() => {
@@ -179,10 +182,21 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
         }
       }
 
+      // drawCanvas が init 完了より先に届いていた場合に適用
+      if (drawCanvasPropRef.current && meshRef.current) {
+        const tex = new THREE.CanvasTexture(drawCanvasPropRef.current);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        if (drawCanvasTexRef.current) drawCanvasTexRef.current.dispose();
+        drawCanvasTexRef.current = tex;
+        meshRef.current.material.dispose();
+        meshRef.current.material = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+      }
+
       if (isVideo) {
         loopVideo();
       } else if (sourceType === "image") {
         detectImage();
+        loopImage();
       } else if (sourceType === "none") {
         loopNone();
       }
@@ -236,6 +250,7 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
           if (meshRef.current) meshRef.current.visible = false;
         }
       }
+      if (drawCanvasTexRef.current) drawCanvasTexRef.current.needsUpdate = true;
       rendererRef.current.render(sceneRef.current, cameraRef.current);
       requestAnimationFrame(loopVideo);
     }
@@ -259,8 +274,18 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
           mesh.rotation.y = rotationY;
         });
       }
+      if (drawCanvasTexRef.current) drawCanvasTexRef.current.needsUpdate = true;
       rendererRef.current.render(sceneRef.current, cameraRef.current);
       requestAnimationFrame(loopNone);
+    }
+
+    function loopImage() {
+      if (!running) return;
+      if (drawCanvasTexRef.current) {
+        drawCanvasTexRef.current.needsUpdate = true;
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      }
+      requestAnimationFrame(loopImage);
     }
 
     function handlePointerMove(e) {
@@ -275,7 +300,7 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
     }
 
     function handlePointerDown(e) {
-      if (e.isPrimary) {
+      if (e.isPrimary && isPointerOverViewerRef.current) {
         isMouseDown = true;
         prevMouseX = e.clientX;
         prevMouseY = e.clientY;
@@ -348,8 +373,42 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
     }
   }, [textureImage]);
 
+  useEffect(() => {
+    drawCanvasPropRef.current = drawCanvas;
+    if (!meshRef.current) return;
+    if (drawCanvas) {
+      const tex = new THREE.CanvasTexture(drawCanvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      if (drawCanvasTexRef.current) drawCanvasTexRef.current.dispose();
+      drawCanvasTexRef.current = tex;
+      meshRef.current.material.dispose();
+      meshRef.current.material = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+    } else {
+      if (drawCanvasTexRef.current) {
+        drawCanvasTexRef.current.dispose();
+        drawCanvasTexRef.current = null;
+      }
+      if (textureImage && rendererRef.current) {
+        const img = new Image();
+        img.onload = () => {
+          if (!meshRef.current) return;
+          const tex = new THREE.Texture(img);
+          tex.colorSpace = THREE.SRGBColorSpace;
+          tex.needsUpdate = true;
+          meshRef.current.material.dispose();
+          meshRef.current.material = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+          rendererRef.current.render(sceneRef.current, cameraRef.current);
+        };
+        img.src = textureImage;
+      }
+    }
+  }, [drawCanvas]);
+
   return (
-    <div ref={containerRef} className="mp-container">
+    <div ref={containerRef} className="mp-container"
+      onPointerEnter={() => { isPointerOverViewerRef.current = true; }}
+      onPointerLeave={() => { isPointerOverViewerRef.current = false; }}
+    >
       {sourceType === "image" && (
         <img
           src={imageSource}
