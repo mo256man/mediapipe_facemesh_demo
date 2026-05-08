@@ -370,20 +370,24 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
           <div className="credit-dropdown">
             <div className="section-title">Credits</div>
 
-            <div className="credit-item">
-              <div className="credit-label">🖼️ Sample Image Source</div>
-              <img src={basePath + "image_sample.jpg"} className="img_thumbnail" />
-              <div className="credit-text">何かの動作の解説をするマッチョ</div>
-              <div className="credit-text">マッスルプラス</div>
-              <a
-                href="https://freephotomuscle.com/archives/photo/8659"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="credit-link"
-              >
-                https://freephotomuscle.com/archives/photo/8659
-              </a>
-            </div>
+            <div className="credit-label">🖼️ Sample Image Sources</div>
+            {imageFiles && imageFiles.map((item, index) => (
+              <div key={index} className="credit-item">
+                <div className="img_base">
+                  <img src={basePath + imageFolder + "/" + item.filename} alt={item.name} />
+                </div>
+                <div className="credit-text">{item.title}</div>
+                <div className="credit-text">{item.site}</div>
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="credit-link"
+                >
+                  {item.url}
+                </a>
+              </div>
+            ))}
 
             <div className="credit-item">
               <div className="credit-label">🎞️ Sample Video Source</div>
