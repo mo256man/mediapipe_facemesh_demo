@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function Header({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, textureFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos }) {
+export default function Header({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, textureFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos, captureMode, setCaptureMode }) {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [creditOpen, setCreditOpen] = useState(false);
+  const [creditType, setCreditType] = useState('image');
   const [textureSubmenuOpen, setTextureSubmenuOpen] = useState(false);
   const [imageSubmenuOpen, setImageSubmenuOpen] = useState(false);
   const [videoSubmenuOpen, setVideoSubmenuOpen] = useState(false);
@@ -58,57 +59,69 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      const newImported = [
-        ...importedTextures,
-        { id: Date.now(), dataUrl: url, name: file.name }
-      ];
-      setImportedTextures(newImported);
-      setTextureImage(url);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        const newImported = [
+          ...importedTextures,
+          { id: Date.now(), dataUrl: dataUrl, name: file.name }
+        ];
+        setImportedTextures(newImported);
+        setTextureImage(dataUrl);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      const newImported = [
-        ...importedImages,
-        { id: Date.now(), dataUrl: url, name: file.name }
-      ];
-      setImportedImages(newImported);
-      setSourceType("image");
-      setImageSource(url);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        const newImported = [
+          ...importedImages,
+          { id: Date.now(), dataUrl: dataUrl, name: file.name }
+        ];
+        setImportedImages(newImported);
+        setSourceType("image");
+        setImageSource(dataUrl);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleVideoChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const videoUrl = URL.createObjectURL(file);
-      const video = document.createElement('video');
-      video.src = videoUrl;
-      
-      video.addEventListener('loadedmetadata', () => {
-        video.currentTime = video.duration * 0.1;
-      });
-      
-      video.addEventListener('seeked', () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
-        const thumbnailUrl = canvas.toDataURL('image/png');
-        
-        const newImported = [
-          ...importedVideos,
-          { id: Date.now(), url: videoUrl, thumbnail: thumbnailUrl, name: file.name }
-        ];
-        setImportedVideos(newImported);
-        setSourceType("video");
-        setVideoSource(videoUrl);
-      });
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const videoDataUrl = event.target.result;
+        const video = document.createElement('video');
+        video.src = videoDataUrl;
+
+        video.addEventListener('loadedmetadata', () => {
+          video.currentTime = video.duration * 0.1;
+        });
+
+        video.addEventListener('seeked', () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0);
+          const thumbnailUrl = canvas.toDataURL('image/png');
+
+          const newImported = [
+            ...importedVideos,
+            { id: Date.now(), url: videoDataUrl, thumbnail: thumbnailUrl, name: file.name }
+          ];
+          setImportedVideos(newImported);
+          setSourceType("video");
+          setVideoSource(videoDataUrl);
+        });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -123,6 +136,11 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
     setTextureSubmenuOpen(false);
     setImageSubmenuOpen(false);
     setVideoSubmenuOpen(false);
+  };
+
+  const exitSpecialMode = () => {
+    if (captureMode) setCaptureMode(false);
+    if (editMode) setEditMode(false);
   };
 
   return (
@@ -164,7 +182,7 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
                   <div className="submenu-popup-grid">
                     {textureFiles && textureFiles.map((item) => (
                       <div key={item.filename} onClick={(e) => { e.stopPropagation(); setTextureImage(basePath + textureFolder + "/" + item.filename); setTextureSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
-                        <div className={textureImage.includes(item.filename) ? "img_base selected" : "img_base"}>
+                        <div className={textureImage && textureImage.includes ? (textureImage.includes(item.filename) ? "img_base selected" : "img_base") : "img_base"}>
                           <img src={basePath + textureFolder + "/" + item.filename} alt={item.name} />
                         </div>
                         <span style={{ fontSize: "12px", display: "block", textAlign: "center", color: "#fff", marginTop: "4px" }}>{item.name}</span>
@@ -218,8 +236,12 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
                 </div>
               )}
             </div>
-            <div className="menu-item" onClick={(e) => { e.stopPropagation(); setEditMode(!editMode); closeAllMenus(); }}>
+
+            <div className="menu-item" onClick={(e) => { e.stopPropagation(); setEditMode(!editMode); setCaptureMode(false); closeAllMenus(); }}>
               ✏️ Edit texture
+            </div>
+            <div className="menu-item" onClick={(e) => { e.stopPropagation(); setCaptureMode(!captureMode); setEditMode(false); closeAllMenus(); }}>
+              📷 FaceCapture &amp; TextureBuilder
             </div>
             <div className="menu-item upload" onClick={(e) => { e.stopPropagation(); handleImportTexture(e); closeSubmenus(); }}>
               📤 Upload texture
@@ -272,7 +294,7 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
                     <div className="submenu-popup-grid">
                       {imageFiles && imageFiles.map((item) => (
                         <div key={item.filename} onClick={(e) => { e.stopPropagation(); setSourceType("image"); setImageSource(basePath + imageFolder + "/" + item.filename); setImageSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
-                          <div className={imageSource && imageSource.includes(item.filename) ? "img_base selected" : "img_base"}>
+                          <div className={imageSource && imageSource.includes ? (imageSource.includes(item.filename) ? "img_base selected" : "img_base") : "img_base"}>
                             <img src={basePath + imageFolder + "/" + item.filename} alt={item.name} />
                           </div>
                           <span style={{ fontSize: "12px", display: "block", textAlign: "center", color: "#fff", marginTop: "4px" }}>{item.name}</span>
@@ -315,7 +337,7 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
                       {videoFiles && videoFiles.map((item) => (
                         <div key={item.filename} onClick={(e) => { e.stopPropagation(); setSourceType("video"); setVideoSource(basePath + videoFolder + "/" + item.filename); setVideoSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
                           <div className={videoSource && videoSource.includes(item.filename) ? "img_base selected" : "img_base"}>
-                            <img src={basePath + thumbnailFolder + "/" + item.thumbnail} alt={item.name} />
+                            <img src={item.thumbnail} alt={item.name} />
                           </div>
                           <span style={{ fontSize: "12px", display: "block", textAlign: "center", color: "#fff", marginTop: "4px" }}>{item.name}</span>
                         </div>
@@ -370,39 +392,68 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
           <div className="credit-dropdown">
             <div className="section-title">Credits</div>
 
-            <div className="credit-label">🖼️ Sample Image Sources</div>
-            {imageFiles && imageFiles.map((item, index) => (
-              <div key={index} className="credit-item">
-                <div className="img_base">
-                  <img src={basePath + imageFolder + "/" + item.filename} alt={item.name} />
-                </div>
-                <div className="credit-text">{item.title}</div>
-                <div className="credit-text">{item.site}</div>
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="credit-link"
-                >
-                  {item.url}
-                </a>
-              </div>
-            ))}
-
-            <div className="credit-item">
-              <div className="credit-label">🎞️ Sample Video Source</div>
-              <img src="movie_thumbnail.jpg" className="img_thumbnail" />
-              <div className="credit-text">タオルで顔を拭く男性</div>
-              <div className="credit-text">videoAC</div>
-              <a
-                href="https://video-ac.com/video/99195"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="credit-link"
+            <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+              <button
+                onClick={(e) => { e.stopPropagation(); setCreditType('image'); }}
+                className={creditType === 'image' ? "source-btn active-selected" : "source-btn"}
               >
-                https://video-ac.com/video/99195
-              </a>
+                🖼️ Image
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setCreditType('video'); }}
+                className={creditType === 'video' ? "source-btn active-selected" : "source-btn"}
+              >
+                🎞️ Video
+              </button>
             </div>
+
+            {creditType === 'image' && (
+              <>
+                <div className="credit-label">🖼️ Sample Image Sources</div>
+                {imageFiles && imageFiles.map((item, index) => (
+                  <div key={index} className="credit-item">
+                    <div className="img_base">
+                      <img src={basePath + imageFolder + "/" + item.filename} alt={item.name} />
+                    </div>
+                    <div className="credit-text">{item.title}</div>
+                    <div className="credit-text">{item.site}</div>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="credit-link"
+                    >
+                      {item.url}
+                    </a>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {creditType === 'video' && (
+              <>
+                <div className="credit-label">🎞️ Sample Video Sources</div>
+                {videoFiles && videoFiles.map((item, index) => (
+                  <div key={index} className="credit-item">
+                    <div className="img_base">
+                      <img src={item.thumbnail} alt={item.name} />
+                    </div>
+                    <div className="credit-text">{item.title || item.name}</div>
+                    <div className="credit-text">{item.site}</div>
+                    {item.url && (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="credit-link"
+                      >
+                        {item.url}
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </>
+            )}
 
             <div className="credit-item">
               <div className="credit-label">🧑‍💻 Author</div>
