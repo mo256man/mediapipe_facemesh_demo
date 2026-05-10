@@ -146,7 +146,7 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
   return (
     <div ref={headerRef} className="header" onClick={() => { if(menuOpen) closeAllMenus(); }}>
 
-      <div className="menu-trigger" onClick={(e) => { e.stopPropagation(); setMenuOpen((prev) => !prev); }}>
+      <div className="menu-trigger" onClick={(e) => { e.stopPropagation(); setMenuOpen((prev) => !prev); setCreditOpen(false); }}>
         ☰ Menu
         {menuOpen && (
           <div className="menu-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -161,81 +161,20 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
                 {showTexure ? "ON" : "OFF"}
               </button>
             </div>
-            <div style={{ position: "relative" }}>
-              <button
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  setTextureSubmenuOpen(!textureSubmenuOpen);
-                  setImageSubmenuOpen(false);
-                  setVideoSubmenuOpen(false);
-                }}
-                className={textureSubmenuOpen ? "source-btn active-open" : "source-btn"}
-              >
-                <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                  <span>🎨 Texture</span>
-                  <span>&gt;</span>
-                </span>
-              </button>
-              {textureSubmenuOpen && (
-                <div className="submenu-popup" onClick={(e) => { if(e.target === e.currentTarget) setTextureSubmenuOpen(false); }}>
-                  <div>select texture</div>
-                  <div className="submenu-popup-grid">
-                    {textureFiles && textureFiles.map((item) => (
-                      <div key={item.filename} onClick={(e) => { e.stopPropagation(); setTextureImage(basePath + textureFolder + "/" + item.filename); setTextureSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
-                        <div className={textureImage && textureImage.includes ? (textureImage.includes(item.filename) ? "img_base selected" : "img_base") : "img_base"}>
-                          <img src={basePath + textureFolder + "/" + item.filename} alt={item.name} />
-                        </div>
-                        <span style={{ fontSize: "12px", display: "block", textAlign: "center", color: "#fff", marginTop: "4px" }}>{item.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <hr />
-                  <div>saved textures</div>
-                  {savedImages && savedImages.length > 0 && (
-                    <div className="submenu-popup-grid" style={{ maxHeight: "200px", overflowY: "auto" }}>
-                      {savedImages.map((img) => (
-                        <div key={img.id} style={{ cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setTextureImage(img.dataUrl); setTextureSubmenuOpen(false); }}>
-                          <div style={{ position: "relative" }}>
-                            <div className={textureImage === img.dataUrl ? "img_base selected" : "img_base"}>
-                              <img src={img.dataUrl} alt="saved" />
-                            </div>
-                            <button
-                              className="draw-gallery-delete"
-                              onClick={(e) => { e.stopPropagation(); setSavedImages((prev) => prev.filter((i) => i.id !== img.id)); }}
-                              style={{ position: "absolute", top: "2px", right: "2px", width: "20px", height: "20px", padding: "0", fontSize: "12px" }}
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <hr />
-                  <div>imported textures</div>
-                  {importedTextures && importedTextures.length > 0 && (
-                    <div className="submenu-popup-grid" style={{ maxHeight: "200px", overflowY: "auto" }}>
-                      {importedTextures.map((img) => (
-                        <div key={img.id} style={{ cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setTextureImage(img.dataUrl); setTextureSubmenuOpen(false); }}>
-                          <div style={{ position: "relative" }}>
-                            <div className={textureImage === img.dataUrl ? "img_base selected" : "img_base"}>
-                              <img src={img.dataUrl} alt={img.name} />
-                            </div>
-                            <button
-                              className="draw-gallery-delete"
-                              onClick={(e) => { e.stopPropagation(); setImportedTextures((prev) => prev.filter((i) => i.id !== img.id)); }}
-                              style={{ position: "absolute", top: "2px", right: "2px", width: "20px", height: "20px", padding: "0", fontSize: "12px" }}
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+            <button
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                setTextureSubmenuOpen(!textureSubmenuOpen);
+                setImageSubmenuOpen(false);
+                setVideoSubmenuOpen(false);
+              }}
+              className={textureSubmenuOpen ? "source-btn active-open" : "source-btn"}
+            >
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                <span>🎨 Texture</span>
+                <span>&gt;</span>
+              </span>
+            </button>
 
             <div className="menu-item" onClick={(e) => { e.stopPropagation(); setEditMode(!editMode); setCaptureMode(false); closeAllMenus(); }}>
               ✏️ Edit texture
@@ -254,125 +193,40 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
 
             <div className="section-title">Source</div>
             {["none", "image", "video", "camera"].map((type) => (
-              <div key={type} style={{ position: "relative" }}>
-                <button
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    if (type === "image") {
-                      setTextureSubmenuOpen(false);
-                      setVideoSubmenuOpen(false);
-                      setImageSubmenuOpen(!imageSubmenuOpen);
-                    } else if (type === "video") {
-                      setTextureSubmenuOpen(false);
-                      setImageSubmenuOpen(false);
-                      setVideoSubmenuOpen(!videoSubmenuOpen);
-                    } else {
-                      setSourceType(type);
-                      closeSubmenus();
-                    }
-                  }}
-                  className={type === "image" ? (imageSubmenuOpen ? "source-btn active-open" : (sourceType === type ? "source-btn active-selected" : "source-btn")) : type === "video" ? (videoSubmenuOpen ? "source-btn active-open" : (sourceType === type ? "source-btn active-selected" : "source-btn")) : (sourceType === type ? "source-btn active-selected" : "source-btn")}
-                >
-                  {type === "none" && "⊘ None"}
-                  {type === "image" && (
-                    <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                      <span>🖼️ Image</span>
-                      <span>&gt;</span>
-                    </span>
-                  )}
-                  {type === "video" && (
-                    <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                      <span>🎞️ Video</span>
-                      <span>&gt;</span>
-                    </span>
-                  )}
-                  {type === "camera" && "🎥 Camera"}
-                </button>
-                {type === "image" && imageSubmenuOpen && (
-                  <div className="submenu-popup" onClick={(e) => { if(e.target === e.currentTarget) setImageSubmenuOpen(false); }}>
-                    <div>select sample image</div>
-                    <div className="submenu-popup-grid">
-                      {imageFiles && imageFiles.map((item) => (
-                        <div key={item.filename} onClick={(e) => { e.stopPropagation(); setSourceType("image"); setImageSource(basePath + imageFolder + "/" + item.filename); setImageSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
-                          <div className={imageSource && imageSource.includes ? (imageSource.includes(item.filename) ? "img_base selected" : "img_base") : "img_base"}>
-                            <img src={basePath + imageFolder + "/" + item.filename} alt={item.name} />
-                          </div>
-                          <span style={{ fontSize: "12px", display: "block", textAlign: "center", color: "#fff", marginTop: "4px" }}>{item.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <hr />
-                    <div>imported images</div>
-                    {importedImages && importedImages.length > 0 && (
-                      <div className="submenu-popup-grid" style={{ maxHeight: "200px", overflowY: "auto" }}>
-                        {importedImages.map((img) => (
-                          <div key={img.id} style={{ cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setSourceType("image"); setImageSource(img.dataUrl); setImageSubmenuOpen(false); }}>
-                            <div style={{ position: "relative" }}>
-                              <div className={imageSource === img.dataUrl ? "img_base selected" : "img_base"}>
-                                <img src={img.dataUrl} alt={img.name} />
-                              </div>
-                              <button
-                                className="draw-gallery-delete"
-                                onClick={(e) => { e.stopPropagation(); setImportedImages((prev) => prev.filter((i) => i.id !== img.id)); }}
-                                style={{ position: "absolute", top: "2px", right: "2px", width: "20px", height: "20px", padding: "0", fontSize: "12px" }}
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
+              <button
+                key={type}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  if (type === "image") {
+                    setTextureSubmenuOpen(false);
+                    setVideoSubmenuOpen(false);
+                    setImageSubmenuOpen(!imageSubmenuOpen);
+                  } else if (type === "video") {
+                    setTextureSubmenuOpen(false);
+                    setImageSubmenuOpen(false);
+                    setVideoSubmenuOpen(!videoSubmenuOpen);
+                  } else {
+                    setSourceType(type);
+                    closeSubmenus();
+                  }
+                }}
+                className={type === "image" ? (imageSubmenuOpen ? "source-btn active-open" : (sourceType === type ? "source-btn active-selected" : "source-btn")) : type === "video" ? (videoSubmenuOpen ? "source-btn active-open" : (sourceType === type ? "source-btn active-selected" : "source-btn")) : (sourceType === type ? "source-btn active-selected" : "source-btn")}
+              >
+                {type === "none" && "⊘ None"}
                 {type === "image" && (
-                  <div className="menu-item upload" onClick={(e) => { e.stopPropagation(); handleUploadImage(e); closeSubmenus(); }}>
-                    📤 Upload custom image
-                  </div>
-                )}
-                {type === "video" && videoSubmenuOpen && (
-                  <div className="submenu-popup" onClick={(e) => { if(e.target === e.currentTarget) setVideoSubmenuOpen(false); }}>
-                    <div>select sample video</div>
-                    <div className="submenu-popup-grid">
-                      {videoFiles && videoFiles.map((item) => (
-                        <div key={item.filename} onClick={(e) => { e.stopPropagation(); setSourceType("video"); setVideoSource(basePath + videoFolder + "/" + item.filename); setVideoSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
-                          <div className={videoSource && videoSource.includes(item.filename) ? "img_base selected" : "img_base"}>
-                            <img src={item.thumbnail} alt={item.name} />
-                          </div>
-                          <span style={{ fontSize: "12px", display: "block", textAlign: "center", color: "#fff", marginTop: "4px" }}>{item.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <hr />
-                    <div>imported videos</div>
-                    {importedVideos && importedVideos.length > 0 && (
-                      <div className="submenu-popup-grid" style={{ maxHeight: "200px", overflowY: "auto" }}>
-                        {importedVideos.map((video) => (
-                          <div key={video.id} style={{ cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setSourceType("video"); setVideoSource(video.url); setVideoSubmenuOpen(false); }}>
-                            <div style={{ position: "relative" }}>
-                              <div className={videoSource === video.url ? "img_base selected" : "img_base"}>
-                                <img src={video.thumbnail} alt={video.name} />
-                              </div>
-                              <button
-                                className="draw-gallery-delete"
-                                onClick={(e) => { e.stopPropagation(); setImportedVideos((prev) => prev.filter((i) => i.id !== video.id)); }}
-                                style={{ position: "absolute", top: "2px", right: "2px", width: "20px", height: "20px", padding: "0", fontSize: "12px" }}
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                    <span>🖼️ Image</span>
+                    {imageSubmenuOpen && <span>&gt;</span>}
+                  </span>
                 )}
                 {type === "video" && (
-                  <div className="menu-item upload" onClick={(e) => { e.stopPropagation(); handleUploadVideo(e); closeSubmenus(); }}>
-                    📤 Upload custom video
-                  </div>
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                    <span>🎞️ Video</span>
+                    {videoSubmenuOpen && <span>&gt;</span>}
+                  </span>
                 )}
-              </div>
+                {type === "camera" && "🎥 Camera"}
+              </button>
             ))}
           </div>
         )}
@@ -384,9 +238,9 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
         <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} />
       </div>
 
-      <div className="header-title">MediaPipe Face Mesh Demo</div>
+      <div className="header-title">MediaPipe FaceMesh Demo</div>
 
-      <div className="credit-trigger" onClick={() => setCreditOpen((prev) => !prev)}>
+      <div className="credit-trigger" onClick={() => { setCreditOpen((prev) => !prev); setMenuOpen(false); }}>
         ℹ️ Credits
         {creditOpen && (
           <div className="credit-dropdown">
@@ -413,7 +267,7 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
                 {imageFiles && imageFiles.map((item, index) => (
                   <div key={index} className="credit-item">
                     <div className="img_base">
-                      <img src={basePath + imageFolder + "/" + item.filename} alt={item.name} />
+                      <img src={item.thumbnail} alt={item.name} />
                     </div>
                     <div className="credit-text">{item.title}</div>
                     <div className="credit-text">{item.site}</div>
@@ -437,6 +291,7 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
                   <div key={index} className="credit-item">
                     <div className="img_base">
                       <img src={item.thumbnail} alt={item.name} />
+                      <img src={basePath + 'film.png'} alt="" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
                     </div>
                     <div className="credit-text">{item.title || item.name}</div>
                     <div className="credit-text">{item.site}</div>
@@ -472,6 +327,145 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
           </div>
         )}
       </div>
+
+      {textureSubmenuOpen && (
+        <div className="submenu-popup" onClick={(e) => { if(e.target === e.currentTarget) setTextureSubmenuOpen(false); }}>
+          <div style={{fontSize:"normal", fontWeight:"bold", marginBottom:"5px"}}>Texture</div>
+          <div>prepared texture</div>
+          <div className="submenu-popup-grid">
+            {textureFiles && textureFiles.map((item) => (
+              <div key={item.filename} onClick={(e) => { e.stopPropagation(); setTextureImage(basePath + textureFolder + "/" + item.filename); setTextureSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
+                <div className={textureImage && textureImage.includes ? (textureImage.includes(item.filename) ? "img_base selected" : "img_base") : "img_base"}>
+                  <img src={item.thumbnail} alt={item.name} />
+                </div>
+                <span style={{ fontSize: "12px", display: "block", textAlign: "center", color: "#fff", marginTop: "4px" }}>{item.name}</span>
+              </div>
+            ))}
+          </div>
+          <hr />
+          <div>saved textures</div>
+          {savedImages && savedImages.length > 0 && (
+            <div className="submenu-popup-grid" style={{ maxHeight: "200px", overflowY: "auto" }}>
+              {savedImages.map((img) => (
+                <div key={img.id} style={{ cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setTextureImage(img.dataUrl); setTextureSubmenuOpen(false); }}>
+                  <div style={{ position: "relative" }}>
+                    <div className={textureImage === img.dataUrl ? "img_base selected" : "img_base"}>
+                      <img src={img.dataUrl} alt="saved" />
+                    </div>
+                    <button
+                      className="draw-gallery-delete"
+                      onClick={(e) => { e.stopPropagation(); setSavedImages((prev) => prev.filter((i) => i.id !== img.id)); }}
+                      style={{ position: "absolute", top: "2px", right: "2px", width: "20px", height: "20px", padding: "0", fontSize: "12px" }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <hr />
+          <div>imported textures</div>
+          {importedTextures && importedTextures.length > 0 && (
+            <div className="submenu-popup-grid" style={{ maxHeight: "200px", overflowY: "auto" }}>
+              {importedTextures.map((img) => (
+                <div key={img.id} style={{ cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setTextureImage(img.dataUrl); setTextureSubmenuOpen(false); }}>
+                  <div style={{ position: "relative" }}>
+                    <div className={textureImage === img.dataUrl ? "img_base selected" : "img_base"}>
+                      <img src={img.dataUrl} alt={img.name} />
+                    </div>
+                    <button
+                      className="draw-gallery-delete"
+                      onClick={(e) => { e.stopPropagation(); setImportedTextures((prev) => prev.filter((i) => i.id !== img.id)); }}
+                      style={{ position: "absolute", top: "2px", right: "2px", width: "20px", height: "20px", padding: "0", fontSize: "12px" }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {imageSubmenuOpen && (
+        <div className="submenu-popup" onClick={(e) => { if(e.target === e.currentTarget) setImageSubmenuOpen(false); }}>
+          <div>select sample image</div>
+          <div className="submenu-popup-grid">
+            {imageFiles && imageFiles.map((item) => (
+              <div key={item.filename} onClick={(e) => { e.stopPropagation(); setSourceType("image"); setImageSource(basePath + imageFolder + "/" + item.filename); setImageSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
+                <div className={imageSource && imageSource.includes ? (imageSource.includes(item.filename) ? "img_base selected" : "img_base") : "img_base"}>
+                  <img src={item.thumbnail} alt={item.name} />
+                </div>
+                <span style={{ fontSize: "12px", display: "block", textAlign: "center", color: "#fff", marginTop: "4px" }}>{item.name}</span>
+              </div>
+            ))}
+          </div>
+          <hr />
+          <div>imported images</div>
+          {importedImages && importedImages.length > 0 && (
+            <div className="submenu-popup-grid" style={{ maxHeight: "200px", overflowY: "auto" }}>
+              {importedImages.map((img) => (
+                <div key={img.id} style={{ cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setSourceType("image"); setImageSource(img.dataUrl); setImageSubmenuOpen(false); }}>
+                  <div style={{ position: "relative" }}>
+                    <div className={imageSource === img.dataUrl ? "img_base selected" : "img_base"}>
+                      <img src={img.dataUrl} alt={img.name} />
+                    </div>
+                    <button
+                      className="draw-gallery-delete"
+                      onClick={(e) => { e.stopPropagation(); setImportedImages((prev) => prev.filter((i) => i.id !== img.id)); }}
+                      style={{ position: "absolute", top: "2px", right: "2px", width: "20px", height: "20px", padding: "0", fontSize: "12px" }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {videoSubmenuOpen && (
+        <div className="submenu-popup" onClick={(e) => { if(e.target === e.currentTarget) setVideoSubmenuOpen(false); }}>
+          <div>select sample video</div>
+          <div className="submenu-popup-grid">
+            {videoFiles && videoFiles.map((item) => (
+              <div key={item.filename} className="video-thumbnail" onClick={(e) => { e.stopPropagation(); setSourceType("video"); setVideoSource(basePath + videoFolder + "/" + item.filename); setVideoSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
+                <div className={videoSource && videoSource.includes(item.filename) ? "img_base selected" : "img_base"}>
+                  <img src={item.thumbnail} alt={item.name} />
+                  <img src={basePath + 'film.png'} alt="" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
+                </div>
+                <span style={{ fontSize: "12px", display: "block", textAlign: "center", color: "#fff", marginTop: "4px" }}>{item.name}</span>
+              </div>
+            ))}
+          </div>
+          <hr />
+          <div>imported videos</div>
+          {importedVideos && importedVideos.length > 0 && (
+            <div className="submenu-popup-grid" style={{ maxHeight: "200px", overflowY: "auto" }}>
+              {importedVideos.map((video) => (
+                <div key={video.id} className="video-thumbnail" style={{ cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setSourceType("video"); setVideoSource(video.url); setVideoSubmenuOpen(false); }}>
+                  <div style={{ position: "relative" }}>
+                    <div className={videoSource === video.url ? "img_base selected" : "img_base"}>
+                      <img src={video.thumbnail} alt={video.name} />
+                      <img src={basePath + 'film.png'} alt="" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
+                    </div>
+                    <button
+                      className="draw-gallery-delete"
+                      onClick={(e) => { e.stopPropagation(); setImportedVideos((prev) => prev.filter((i) => i.id !== video.id)); }}
+                      style={{ position: "absolute", top: "2px", right: "2px", width: "20px", height: "20px", padding: "0", fontSize: "12px" }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

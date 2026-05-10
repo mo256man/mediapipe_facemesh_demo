@@ -311,10 +311,37 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       isMouseDown = false;
     }
 
+    function handleTouchStart(e) {
+      if (isPointerOverViewerRef.current && e.touches.length > 0) {
+        isMouseDown = true;
+        prevMouseX = e.touches[0].clientX;
+        prevMouseY = e.touches[0].clientY;
+      }
+    }
+
+    function handleTouchMove(e) {
+      if (isMouseDown && e.touches.length > 0) {
+        const deltaX = e.touches[0].clientX - prevMouseX;
+        const deltaY = e.touches[0].clientY - prevMouseY;
+        rotationY += deltaX * 0.01;
+        rotationX += deltaY * 0.01;
+        prevMouseX = e.touches[0].clientX;
+        prevMouseY = e.touches[0].clientY;
+        e.preventDefault();
+      }
+    }
+
+    function handleTouchEnd() {
+      isMouseDown = false;
+    }
+
     requestAnimationFrame(() => { init(); });
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerdown", handlePointerDown);
     window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd);
 
     return () => {
       isMounted = false;
@@ -328,6 +355,9 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
     };
   }, [sourceType, imageSource, videoSource]);
 

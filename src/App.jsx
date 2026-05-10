@@ -54,6 +54,35 @@ function App() {
     }
   }, [videoFiles, basePath, videoFolder]);
 
+  const resizeImageOnCanvas = (source, maxWidth, maxHeight) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        
+        const aspectRatio = width / height;
+        if (width > maxWidth || height > maxHeight) {
+          if (width / maxWidth > height / maxHeight) {
+            width = maxWidth;
+            height = width / aspectRatio;
+          } else {
+            height = maxHeight;
+            width = height * aspectRatio;
+          }
+        }
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.src = source;
+    });
+  };
+
   const generateVideoThumbnail = (videoPath) => {
     return new Promise((resolve) => {
       const video = document.createElement('video');
@@ -65,19 +94,78 @@ function App() {
       });
       
       video.addEventListener('seeked', () => {
+        const maxWidth = 200;
+        const maxHeight = 160;
+        let width = video.videoWidth;
+        let height = video.videoHeight;
+        
+        const aspectRatio = width / height;
+        if (width > maxWidth || height > maxHeight) {
+          if (width / maxWidth > height / maxHeight) {
+            width = maxWidth;
+            height = width / aspectRatio;
+          } else {
+            height = maxHeight;
+            width = height * aspectRatio;
+          }
+        }
+        
         const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        canvas.width = width;
+        canvas.height = height;
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
+        ctx.drawImage(video, 0, 0, width, height);
         resolve(canvas.toDataURL('image/png'));
       }, { once: true });
     });
   };
 
+  const [imageFilesWithThumbnails, setImageFilesWithThumbnails] = useState([]);
+  const [textureFilesWithThumbnails, setTextureFilesWithThumbnails] = useState([]);
+
+  useEffect(() => {
+    const generateImageThumbnails = async () => {
+      const imagesWithThumbnails = await Promise.all(
+        imageFiles.map(async (item) => {
+          const imagePath = basePath + imageFolder + "/" + item.filename;
+          const thumbnail = await resizeImageOnCanvas(imagePath, 200, 160);
+          return {
+            ...item,
+            thumbnail: thumbnail
+          };
+        })
+      );
+      setImageFilesWithThumbnails(imagesWithThumbnails);
+    };
+    
+    if (imageFiles.length > 0) {
+      generateImageThumbnails();
+    }
+  }, [imageFiles, basePath, imageFolder]);
+
+  useEffect(() => {
+    const generateTextureThumbnails = async () => {
+      const texturesWithThumbnails = await Promise.all(
+        textureFiles.map(async (item) => {
+          const texturePath = basePath + textureFolder + "/" + item.filename;
+          const thumbnail = await resizeImageOnCanvas(texturePath, 200, 160);
+          return {
+            ...item,
+            thumbnail: thumbnail
+          };
+        })
+      );
+      setTextureFilesWithThumbnails(texturesWithThumbnails);
+    };
+    
+    if (textureFiles.length > 0) {
+      generateTextureThumbnails();
+    }
+  }, [textureFiles, basePath, textureFolder]);
+
   return (
     <>
-      <Header showTexure={showTexure} setShowTexure={setShowTexure} sourceType={sourceType} setSourceType={setSourceType} textureImage={textureImage} setTextureImage={setTextureImage} imageSource={imageSource} setImageSource={setImageSource} videoSource={videoSource} setVideoSource={setVideoSource} textureFiles={textureFiles} textureFolder={textureFolder} imageFiles={imageFiles} imageFolder={imageFolder} videoFiles={videoFilesWithThumbnails} videoFolder={videoFolder} thumbnailFolder={thumbnailFolder} basePath={basePath} editMode={editMode} setEditMode={setEditMode} savedImages={savedImages} setSavedImages={setSavedImages} importedTextures={importedTextures} setImportedTextures={setImportedTextures} importedImages={importedImages} setImportedImages={setImportedImages} importedVideos={importedVideos} setImportedVideos={setImportedVideos} captureMode={captureMode} setCaptureMode={setCaptureMode} />
+      <Header showTexure={showTexure} setShowTexure={setShowTexure} sourceType={sourceType} setSourceType={setSourceType} textureImage={textureImage} setTextureImage={setTextureImage} imageSource={imageSource} setImageSource={setImageSource} videoSource={videoSource} setVideoSource={setVideoSource} textureFiles={textureFilesWithThumbnails} textureFolder={textureFolder} imageFiles={imageFilesWithThumbnails} imageFolder={imageFolder} videoFiles={videoFilesWithThumbnails} videoFolder={videoFolder} thumbnailFolder={thumbnailFolder} basePath={basePath} editMode={editMode} setEditMode={setEditMode} savedImages={savedImages} setSavedImages={setSavedImages} importedTextures={importedTextures} setImportedTextures={setImportedTextures} importedImages={importedImages} setImportedImages={setImportedImages} importedVideos={importedVideos} setImportedVideos={setImportedVideos} captureMode={captureMode} setCaptureMode={setCaptureMode} />
       <div className="main" style={{ display: "flex", flexDirection: "row" }}>
         {!editMode && !captureMode && (
           <div style={{ flex: 1, minWidth: 0 }}>

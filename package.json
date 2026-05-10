@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build-and-push": "vite build && git add . && git commit -m \"build: update production build\" && git push"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.35",

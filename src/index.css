@@ -65,9 +65,10 @@ html, body {
   left: 10px;
   background: #222;
   min-width: 220px;
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   border-radius: 0 0 6px 6px;
-  overflow: visible;
   z-index: 1000;
 }
 
@@ -170,11 +171,13 @@ html, body {
 }
 
 .submenu-popup {
-  position: absolute;
-  left: 100%;
-  top: 0;
-  margin-left: 8px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: #222;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   border-radius: 6px;
   z-index: 2000;
@@ -219,7 +222,7 @@ html, body {
   right: 10px;
   background: #2a2a2a;
   min-width: 320px;
-  max-height: 90vh;
+  max-height: calc(100vh - 60px);
   overflow-y: auto;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   border-radius: 0 0 6px 6px;
@@ -327,6 +330,7 @@ html, body {
   overflow: hidden;
   border-radius: 4px;
   background: #000;
+  position: relative;
 }
 
 .img_base.selected {
