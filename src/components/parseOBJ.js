@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export function parseOBJ(text) {
+export function parseOBJ(text, { swapYZ = false } = {}) {
   const vs = [];
   const vts = [];
   const faces = [];
@@ -8,7 +8,11 @@ export function parseOBJ(text) {
     const t = l.trim();
     if (t.startsWith("v ")) {
       const [, x, y, z] = t.split(/\s+/);
-      vs.push([+x, +y, +z]);
+      if (swapYZ) {
+        vs.push([+x, +z, +y]);
+      } else {
+        vs.push([+x, +y, +z]);
+      }
     } else if (t.startsWith("vt ")) {
       const [, u, v] = t.split(/\s+/);
       vts.push([+u, +v]);
