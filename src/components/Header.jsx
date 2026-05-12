@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function Header({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, textureFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos, captureMode, setCaptureMode, customObjText, setCustomObjText }) {
+export default function Header({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, textureFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos, captureMode, setCaptureMode, selectedObjFile, setSelectedObjFile, selectedObjScale, setSelectedObjScale }) {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [creditOpen, setCreditOpen] = useState(false);
@@ -11,7 +11,6 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
   const importTextureRef = useRef(null);
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
-  const objInputRef = useRef(null);
   const counterRef = useRef(null);
   const headerRef = useRef(null);
   const basePath = basePath_prop || import.meta.env.BASE_URL;
@@ -55,22 +54,6 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
   const handleUploadVideo = (e) => {
     e.stopPropagation();
     videoInputRef.current?.click();
-  };
-
-  const handleUploadObj = (e) => {
-    e.stopPropagation();
-    objInputRef.current?.click();
-  };
-
-  const handleObjChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setCustomObjText(event.target.result);
-      };
-      reader.readAsText(file);
-    }
   };
 
   const handleFileChange = (e) => {
@@ -205,9 +188,6 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
             <div className="menu-item" onClick={(e) => { e.stopPropagation(); handleDownload(e); closeSubmenus(); }}>
               📥 Download blueprint
             </div>
-            <div className="menu-item" onClick={(e) => { e.stopPropagation(); handleUploadObj(e); closeSubmenus(); }}>
-              📦 Use other obj{customObjText ? " ✓" : ""}
-            </div>
 
             <div className="section-gap" />
 
@@ -256,7 +236,6 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
         <input ref={importTextureRef} type="file" accept="image/*" onChange={handleFileChange} />
         <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} />
         <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} />
-        <input ref={objInputRef} type="file" accept=".obj" onChange={handleObjChange} />
       </div>
 
       <div className="header-title">MediaPipe FaceMesh Demo</div>
@@ -355,7 +334,7 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
           <div>prepared texture</div>
           <div className="submenu-popup-grid">
             {textureFiles && textureFiles.map((item) => (
-              <div key={item.filename} onClick={(e) => { e.stopPropagation(); setTextureImage(basePath + textureFolder + "/" + item.filename); setTextureSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
+              <div key={item.filename} onClick={(e) => { e.stopPropagation(); setTextureImage(basePath + textureFolder + "/" + item.filename); if (item.obj) setSelectedObjFile(item.obj); setSelectedObjScale(item.scale ?? 1.0); setTextureSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
                 <div className={textureImage && textureImage.includes ? (textureImage.includes(item.filename) ? "img_base selected" : "img_base") : "img_base"}>
                   <img src={item.thumbnail} alt={item.name} />
                 </div>

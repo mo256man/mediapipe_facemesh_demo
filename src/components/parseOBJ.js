@@ -9,7 +9,9 @@ export function parseOBJ(text, { swapYZ = false } = {}) {
     if (t.startsWith("v ")) {
       const [, x, y, z] = t.split(/\s+/);
       if (swapYZ) {
-        vs.push([+x, +z, +y]);
+        // Blender Z-up → Three.js Y-up 変換
+        // Three.js X = Blender X, Three.js Y = Blender Z, Three.js Z = -Blender Y
+        vs.push([+x, +z, -y]);
       } else {
         vs.push([+x, +y, +z]);
       }

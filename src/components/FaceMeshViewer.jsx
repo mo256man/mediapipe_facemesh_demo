@@ -6,7 +6,7 @@ import { setupScene } from "./setupScene";
 
 const MIRROR = false;
 
-export default function Mp({ showTexure, sourceType, textureImage, imageSource, videoSource, drawCanvas, customObjText }) {
+export default function Mp({ showTexure, sourceType, textureImage, imageSource, videoSource, drawCanvas, selectedObjFile, objScale }) {
   const containerRef = useRef(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -22,6 +22,9 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
   const drawCanvasTexRef = useRef(null);
   const drawCanvasPropRef = useRef(drawCanvas);
   const isPointerOverViewerRef = useRef(false);
+  const isCanonicalRef = useRef(true);
+  const modelSizeRef = useRef(1);
+  const objScaleRef = useRef(1.0);
   const basePath = import.meta.env.BASE_URL;
 
   useEffect(() => {
@@ -159,14 +162,23 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
       scene.add(ambientLight);
 
-      const objText = customObjText
-        ? customObjText
-        : await fetch(basePath + "canonical_face_model.obj").then((r) => r.text());
+      const objText = await fetch(basePath + "obj/" + (selectedObjFile || "canonical_face_model.obj")).then((r) => r.text());
 
-      const { geometry, srcIndexOfVertex } = parseOBJ(objText, { swapYZ: !!customObjText });
+      // Blender の OBJ エクスポートはデフォルトで Y-up 変換済みのため変換不要
+      const { geometry, srcIndexOfVertex } = parseOBJ(objText);
 
       geomRef.current = geometry;
       srcIndexRef.current = srcIndexOfVertex;
+
+      const isCanonical = (selectedObjFile || "canonical_face_model.obj") === "canonical_face_model.obj";
+      isCanonicalRef.current = isCanonical;
+
+      if (!isCanonical) {
+        geometry.computeBoundingBox();
+        const bboxSize = new THREE.Vector3();
+        geometry.boundingBox.getSize(bboxSize);
+        modelSizeRef.current = Math.max(bboxSize.x, bboxSize.y, bboxSize.z);
+      }
 
       const baseMatm = new THREE.MeshStandardMaterial({
         color: 0xF7C3A9
@@ -307,24 +319,62 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
         offsetY = 0;
       }
 
-      const pos = geomRef.current.attributes.position;
+      if (isCanonicalRef.current) {
+        const pos = geomRef.current.attributes.position;
 
-      for (let i = 0; i < pos.count; i++) {
-        const s = srcIndexRef.current[i];
-        const p = pts[s];
+        for (let i = 0; i < pos.count; i++) {
+          const s = srcIndexRef.current[i];
+          const p = pts[s];
 
-        let x = p.x * displayW + offsetX - canvasWidth / 2;
-        const y = canvasHeight / 2 - (p.y * displayH + offsetY);
-        const z = -p.z * displayW * 0.8;
+          let x = p.x * displayW + offsetX - canvasWidth / 2;
+          const y = canvasHeight / 2 - (p.y * displayH + offsetY);
+          const z = -p.z * displayW * 0.8;
 
-        if (MIRROR) x = -x;
+          if (MIRROR) x = -x;
 
-        pos.setXYZ(i, x, y, z);
+          pos.setXYZ(i, x, y, z);
+        }
+
+        pos.needsUpdate = true;
+        geomRef.current.computeVertexNormals();
+
+      } else {
+        const mesh = meshRef.current;
+        if (!mesh) return;
+
+        const toLM = (p) => new THREE.Vector3(
+          MIRROR ? -(p.x * displayW + offsetX - canvasWidth / 2) : p.x * displayW + offsetX - canvasWidth / 2,
+          canvasHeight / 2 - (p.y * displayH + offsetY),
+          -p.z * displayW * 0.8
+        );
+
+        // 顔の方向・スケールを計算するランドマーク
+        const leftEye  = toLM(pts[33]);   // 左目外端
+        const rightEye = toLM(pts[263]);  // 右目外端
+        const chin     = toLM(pts[152]);  // 顎
+        const forehead = toLM(pts[10]);   // 額上部
+
+        // 顔の中心（額〜顎の中点）
+        const faceCenter = new THREE.Vector3().addVectors(forehead, chin).multiplyScalar(0.5);
+
+        // スケール: 顔の高さ / モデルのバウンディングボックスサイズ
+        const faceHeight = forehead.distanceTo(chin);
+        if (faceHeight < 1) return;
+        const scale = (faceHeight / modelSizeRef.current) * objScaleRef.current;
+
+        // 顔の座標軸を計算
+        const up = new THREE.Vector3().subVectors(forehead, chin).normalize();
+        const right = new THREE.Vector3().subVectors(rightEye, leftEye).normalize();
+        // upと直交化
+        right.sub(up.clone().multiplyScalar(right.dot(up))).normalize();
+        // forward = right × up (+Z方向 = カメラ側)
+        const forward = new THREE.Vector3().crossVectors(right, up).normalize();
+
+        const rotMatrix = new THREE.Matrix4().makeBasis(right, up, forward);
+        mesh.setRotationFromMatrix(rotMatrix);
+        mesh.position.copy(faceCenter);
+        mesh.scale.setScalar(scale);
       }
-
-      pos.needsUpdate = true;
-
-      geomRef.current.computeVertexNormals();
     }
 
     function loopVideo() {
@@ -493,7 +543,11 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [sourceType, imageSource, videoSource, customObjText]);
+  }, [sourceType, imageSource, videoSource, selectedObjFile]);
+
+  useEffect(() => {
+    objScaleRef.current = objScale ?? 1.0;
+  }, [objScale]);
 
   useEffect(() => {
     showTexureRef.current = showTexure;

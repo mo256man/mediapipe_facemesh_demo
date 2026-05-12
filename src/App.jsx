@@ -33,7 +33,12 @@ function App() {
   const [videoFilesWithThumbnails, setVideoFilesWithThumbnails] = useState([]);
   const [captureMode, setCaptureMode] = useState(false);
   const [capturedFrames, setCapturedFrames] = useState([]);
-  const [customObjText, setCustomObjText] = useState(null);
+  const [selectedObjFile, setSelectedObjFile] = useState(
+    textureFiles[0]?.obj || "canonical_face_model.obj"
+  );
+  const [selectedObjScale, setSelectedObjScale] = useState(
+    textureFiles[0]?.scale ?? 1.0
+  );
 
   useEffect(() => {
     const generateThumbnails = async () => {
@@ -166,17 +171,17 @@ function App() {
 
   return (
     <>
-      <Header showTexure={showTexure} setShowTexure={setShowTexure} sourceType={sourceType} setSourceType={setSourceType} textureImage={textureImage} setTextureImage={setTextureImage} imageSource={imageSource} setImageSource={setImageSource} videoSource={videoSource} setVideoSource={setVideoSource} textureFiles={textureFilesWithThumbnails} textureFolder={textureFolder} imageFiles={imageFilesWithThumbnails} imageFolder={imageFolder} videoFiles={videoFilesWithThumbnails} videoFolder={videoFolder} thumbnailFolder={thumbnailFolder} basePath={basePath} editMode={editMode} setEditMode={setEditMode} savedImages={savedImages} setSavedImages={setSavedImages} importedTextures={importedTextures} setImportedTextures={setImportedTextures} importedImages={importedImages} setImportedImages={setImportedImages} importedVideos={importedVideos} setImportedVideos={setImportedVideos} captureMode={captureMode} setCaptureMode={setCaptureMode} customObjText={customObjText} setCustomObjText={setCustomObjText} />
+      <Header showTexure={showTexure} setShowTexure={setShowTexure} sourceType={sourceType} setSourceType={setSourceType} textureImage={textureImage} setTextureImage={setTextureImage} imageSource={imageSource} setImageSource={setImageSource} videoSource={videoSource} setVideoSource={setVideoSource} textureFiles={textureFilesWithThumbnails} textureFolder={textureFolder} imageFiles={imageFilesWithThumbnails} imageFolder={imageFolder} videoFiles={videoFilesWithThumbnails} videoFolder={videoFolder} thumbnailFolder={thumbnailFolder} basePath={basePath} editMode={editMode} setEditMode={setEditMode} savedImages={savedImages} setSavedImages={setSavedImages} importedTextures={importedTextures} setImportedTextures={setImportedTextures} importedImages={importedImages} setImportedImages={setImportedImages} importedVideos={importedVideos} setImportedVideos={setImportedVideos} captureMode={captureMode} setCaptureMode={setCaptureMode} selectedObjFile={selectedObjFile} setSelectedObjFile={setSelectedObjFile} selectedObjScale={selectedObjScale} setSelectedObjScale={setSelectedObjScale} />
       <div className="main" style={{ display: "flex", flexDirection: "row" }}>
         {!editMode && !captureMode && (
           <div style={{ flex: 1, minWidth: 0 }}>
-            <FaceMeshViewer showTexure={showTexure} sourceType={sourceType} textureImage={textureImage} imageSource={imageSource} videoSource={videoSource} drawCanvas={drawCanvasEl} customObjText={customObjText} />
+            <FaceMeshViewer showTexure={showTexure} sourceType={sourceType} textureImage={textureImage} imageSource={imageSource} videoSource={videoSource} drawCanvas={drawCanvasEl} selectedObjFile={selectedObjFile} objScale={selectedObjScale} />
           </div>
         )}
         {editMode && !captureMode && (
           <>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <FaceMeshViewer showTexure={showTexure} sourceType={sourceType} textureImage={textureImage} imageSource={imageSource} videoSource={videoSource} drawCanvas={drawCanvasEl} customObjText={customObjText} />
+              <FaceMeshViewer showTexure={showTexure} sourceType={sourceType} textureImage={textureImage} imageSource={imageSource} videoSource={videoSource} drawCanvas={drawCanvasEl} selectedObjFile={selectedObjFile} objScale={selectedObjScale} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <Draw ref={setDrawCanvasEl} savedImages={savedImages} setSavedImages={setSavedImages} />

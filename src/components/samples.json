@@ -1,15 +1,30 @@
 {"texture":
   [
     { "filename": "face_mesh.png",
-      "name":"face mesh"},
+      "name":"face mesh",
+      "obj":"canonical_face_model.obj"
+    },
     { "filename": "anonymous.png",
-      "name":"アノニマス"},
+      "name":"アノニマス",
+      "obj":"canonical_face_model.obj"
+    },
     { "filename": "akaza.png",
-      "name":"猗窩座"},
+      "name":"猗窩座",
+      "obj":"canonical_face_model.obj"
+    },
     { "filename": "ataru.png",
-      "name":"キン肉マンソルジャー"},
+      "name":"キン肉マンソルジャー",
+      "obj":"canonical_face_model.obj"
+    },
     { "filename": "demon.png",
-      "name":"デーモン閣下"}
+      "name":"デーモン閣下",
+      "obj":"canonical_face_model.obj"
+    },
+    { "filename": "monkey.png",
+      "name": "Blenderモンキー",
+      "obj": "monkey.obj",
+      "scale": 2
+    }
   ],
   "iamge":
   [
