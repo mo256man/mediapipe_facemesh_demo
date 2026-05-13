@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function Header({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, textureFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos, captureMode, setCaptureMode, selectedObjFile, setSelectedObjFile, selectedObjScale, setSelectedObjScale }) {
+export default function Header({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, textureFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos, captureMode, setCaptureMode, selectedObjFile, setSelectedObjFile, selectedObjScale, setSelectedObjScale, smoothShading, setSmoothShading }) {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [creditOpen, setCreditOpen] = useState(false);
@@ -19,17 +19,18 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
     const handleOutsideClick = (e) => {
       if (headerRef.current && !headerRef.current.contains(e.target)) {
         setMenuOpen(false);
+        setCreditOpen(false);
         setTextureSubmenuOpen(false);
         setImageSubmenuOpen(false);
         setVideoSubmenuOpen(false);
       }
     };
 
-    if (menuOpen || textureSubmenuOpen || imageSubmenuOpen || videoSubmenuOpen) {
+    if (menuOpen || creditOpen || textureSubmenuOpen || imageSubmenuOpen || videoSubmenuOpen) {
       document.addEventListener("click", handleOutsideClick);
       return () => document.removeEventListener("click", handleOutsideClick);
     }
-  }, [menuOpen, textureSubmenuOpen, imageSubmenuOpen, videoSubmenuOpen]);
+  }, [menuOpen, creditOpen, textureSubmenuOpen, imageSubmenuOpen, videoSubmenuOpen]);
 
   const handleDownload = (e) => {
     e.stopPropagation();
@@ -152,15 +153,6 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
           <div className="menu-dropdown" onClick={(e) => e.stopPropagation()}>
 
             <div className="section-title">Texture</div>
-            <div className="menu-item texture-toggle">
-              <span>Show texture</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowTexure(!showTexure); closeSubmenus(); }}
-                className={showTexure ? "toggle-btn on" : "toggle-btn off"}
-              >
-                {showTexure ? "ON" : "OFF"}
-              </button>
-            </div>
             <button
               onClick={(e) => { 
                 e.stopPropagation(); 
@@ -176,12 +168,6 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
               </span>
             </button>
 
-            <div className="menu-item" onClick={(e) => { e.stopPropagation(); setEditMode(!editMode); setCaptureMode(false); closeAllMenus(); }}>
-              ✏️ Edit texture
-            </div>
-            <div className="menu-item" onClick={(e) => { e.stopPropagation(); setCaptureMode(!captureMode); setEditMode(false); closeAllMenus(); }}>
-              📷 FaceCapture &amp; TextureBuilder
-            </div>
             <div className="menu-item upload" onClick={(e) => { e.stopPropagation(); handleImportTexture(e); closeSubmenus(); }}>
               📤 Upload texture
             </div>
@@ -232,45 +218,107 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
         )}
       </div>
 
+      <div className="menu-item texture-toggle">
+        <span>Show texture</span>
+        <button
+          onClick={(e) => { e.stopPropagation(); setShowTexure(!showTexure); }}
+          className={showTexure ? "toggle-btn on" : "toggle-btn off"}
+        >
+          {showTexure ? "ON" : "OFF"}
+        </button>
+      </div>
+
+      <div className="menu-item texture-toggle">
+        <span>Smooth Shading</span>
+        <button
+          onClick={(e) => { e.stopPropagation(); setSmoothShading(!smoothShading); }}
+          className={smoothShading ? "toggle-btn on" : "toggle-btn off"}
+        >
+          {smoothShading ? "ON" : "OFF"}
+        </button>
+      </div>
+
       <div style={{ display: "none" }}>
         <input ref={importTextureRef} type="file" accept="image/*" onChange={handleFileChange} />
         <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} />
         <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} />
       </div>
 
-      <div className="header-title">MediaPipe FaceMesh Demo</div>
+      <div className="header-title" onClick={() => { setCreditOpen((prev) => !prev); setMenuOpen(false); }} style={{ cursor: "pointer" }}>
+        MediaPipe FaceMesh Demo
+      </div>
 
-      <div className="credit-trigger" onClick={() => { setCreditOpen((prev) => !prev); setMenuOpen(false); }}>
-        ℹ️ Credits
-        {creditOpen && (
-          <div className="credit-dropdown">
-            <div className="section-title">Credits</div>
+      <div style={{ display: "flex", gap: "10px", marginLeft: "auto", paddingRight: "20px", alignItems: "center" }}>
+        <button
+          onClick={(e) => { e.stopPropagation(); setEditMode(!editMode); setCaptureMode(false); }}
+          className="source-btn"
+          style={{ fontSize: "13px" }}
+        >
+          ✏️ Edit texture
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); setCaptureMode(!captureMode); setEditMode(false); }}
+          className="source-btn"
+          style={{ fontSize: "13px" }}
+        >
+          📷 FaceCapture
+        </button>
+      </div>
 
-            <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-              <button
-                onClick={(e) => { e.stopPropagation(); setCreditType('image'); }}
-                className={creditType === 'image' ? "source-btn active-selected" : "source-btn"}
-              >
-                🖼️ Image
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setCreditType('video'); }}
-                className={creditType === 'video' ? "source-btn active-selected" : "source-btn"}
-              >
-                🎞️ Video
-              </button>
-            </div>
+      {creditOpen && (
+        <div className="credit-dropdown">
+          <div className="section-title">Credits</div>
 
-            {creditType === 'image' && (
-              <>
-                <div className="credit-label">🖼️ Sample Image Sources</div>
-                {imageFiles && imageFiles.map((item, index) => (
-                  <div key={index} className="credit-item">
-                    <div className="img_base">
-                      <img src={item.thumbnail} alt={item.name} />
-                    </div>
-                    <div className="credit-text">{item.title}</div>
-                    <div className="credit-text">{item.site}</div>
+          <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); setCreditType('image'); }}
+              className={creditType === 'image' ? "source-btn active-selected" : "source-btn"}
+            >
+              🖼️ Image
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); setCreditType('video'); }}
+              className={creditType === 'video' ? "source-btn active-selected" : "source-btn"}
+            >
+              🎞️ Video
+            </button>
+          </div>
+
+          {creditType === 'image' && (
+            <>
+              <div className="credit-label">🖼️ Sample Image Sources</div>
+              {imageFiles && imageFiles.map((item, index) => (
+                <div key={index} className="credit-item">
+                  <div className="img_base">
+                    <img src={item.thumbnail} alt={item.name} />
+                  </div>
+                  <div className="credit-text">{item.title}</div>
+                  <div className="credit-text">{item.site}</div>
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="credit-link"
+                  >
+                    {item.url}
+                  </a>
+                </div>
+              ))}
+            </>
+          )}
+
+          {creditType === 'video' && (
+            <>
+              <div className="credit-label">🎞️ Sample Video Sources</div>
+              {videoFiles && videoFiles.map((item, index) => (
+                <div key={index} className="credit-item">
+                  <div className="img_base">
+                    <img src={item.thumbnail} alt={item.name} />
+                    <img src={basePath + 'film.png'} alt="" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
+                  </div>
+                  <div className="credit-text">{item.title || item.name}</div>
+                  <div className="credit-text">{item.site}</div>
+                  {item.url && (
                     <a
                       href={item.url}
                       target="_blank"
@@ -279,54 +327,27 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
                     >
                       {item.url}
                     </a>
-                  </div>
-                ))}
-              </>
-            )}
+                  )}
+                </div>
+              ))}
+            </>
+          )}
 
-            {creditType === 'video' && (
-              <>
-                <div className="credit-label">🎞️ Sample Video Sources</div>
-                {videoFiles && videoFiles.map((item, index) => (
-                  <div key={index} className="credit-item">
-                    <div className="img_base">
-                      <img src={item.thumbnail} alt={item.name} />
-                      <img src={basePath + 'film.png'} alt="" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
-                    </div>
-                    <div className="credit-text">{item.title || item.name}</div>
-                    <div className="credit-text">{item.site}</div>
-                    {item.url && (
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="credit-link"
-                      >
-                        {item.url}
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </>
-            )}
-
-            <div className="credit-item">
-              <div className="credit-label">🧑‍💻 Author</div>
-              <img src="author_thumbnail.png" className="author_thumbnail" />
-              <div className="credit-text">mo256man</div>
-              <a
-                href="https://github.com/mo256man/mediapipe_facemesh_demo"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="credit-link"
-              >
-                https://github.com/mo256man/mediapipe_facemesh_demo
-              </a>
-            </div>
-
+          <div className="credit-item">
+            <div className="credit-label">🧑‍💻 Author</div>
+            <div className="credit-text">mo256man</div>
+            <a
+              href="https://github.com/mo256man/mediapipe_facemesh_demo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="credit-link"
+            >
+              https://github.com/mo256man/mediapipe_facemesh_demo
+            </a>
           </div>
-        )}
-      </div>
+
+        </div>
+      )}
 
       {textureSubmenuOpen && (
         <div className="submenu-popup" onClick={(e) => { if(e.target === e.currentTarget) setTextureSubmenuOpen(false); }}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 import { parseOBJ } from "./parseOBJ";
@@ -6,34 +6,150 @@ import { setupScene } from "./setupScene";
 
 const MIRROR = false;
 
-export default function Mp({ showTexure, sourceType, textureImage, imageSource, videoSource, drawCanvas, selectedObjFile, objScale }) {
+export default function Mp({
+  showTexure,
+  sourceType,
+  textureImage,
+  imageSource,
+  videoSource,
+  drawCanvas,
+  selectedObjFile,
+  objScale,
+  smoothShading, // 親から受け取る
+}) {
   const containerRef = useRef(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+
   const rendererRef = useRef(null);
   const sceneRef = useRef(null);
   const cameraRef = useRef(null);
+
   const geomRef = useRef(null);
   const srcIndexRef = useRef(null);
+
   const meshRef = useRef(null);
+  const baseMeshRef = useRef(null);
+
   const showTexureRef = useRef(showTexure);
   const imgCanvasRef = useRef(null);
   const landmarkerRef = useRef(null);
+
   const drawCanvasTexRef = useRef(null);
   const drawCanvasPropRef = useRef(drawCanvas);
+
   const isPointerOverViewerRef = useRef(false);
   const isCanonicalRef = useRef(true);
+
   const modelSizeRef = useRef(1);
   const objScaleRef = useRef(1.0);
+  const smoothShadingRef = useRef(!!smoothShading);
+
   const basePath = import.meta.env.BASE_URL;
 
+  function applyShadingToMaterial(mat) {
+    if (!mat) return;
+    mat.flatShading = !smoothShadingRef.current;
+    mat.needsUpdate = true;
+  }
+
+  function computeSmoothNormalsFromSrcIndex(geometry, srcIndexOfVertex) {
+    const posAttr = geometry?.attributes?.position;
+    if (!posAttr) return;
+
+    const vCount = posAttr.count;
+    if (!srcIndexOfVertex || srcIndexOfVertex.length < vCount) {
+      geometry.computeVertexNormals();
+      if (geometry.attributes.normal) geometry.attributes.normal.needsUpdate = true;
+      return;
+    }
+
+    let maxSrc = 0;
+    for (let i = 0; i < vCount; i++) {
+      const s = srcIndexOfVertex[i] | 0;
+      if (s > maxSrc) maxSrc = s;
+    }
+
+    const sums = new Float32Array((maxSrc + 1) * 3);
+    const p = posAttr.array;
+
+    const addTo = (src, nx, ny, nz) => {
+      const o = src * 3;
+      sums[o] += nx;
+      sums[o + 1] += ny;
+      sums[o + 2] += nz;
+    };
+
+    const accTri = (ia, ib, ic) => {
+      const a0 = ia * 3,
+        b0 = ib * 3,
+        c0 = ic * 3;
+
+      const ax = p[a0],
+        ay = p[a0 + 1],
+        az = p[a0 + 2];
+      const bx = p[b0],
+        by = p[b0 + 1],
+        bz = p[b0 + 2];
+      const cx = p[c0],
+        cy = p[c0 + 1],
+        cz = p[c0 + 2];
+
+      const abx = bx - ax,
+        aby = by - ay,
+        abz = bz - az;
+      const acx = cx - ax,
+        acy = cy - ay,
+        acz = cz - az;
+
+      const nx = aby * acz - abz * acy;
+      const ny = abz * acx - abx * acz;
+      const nz = abx * acy - aby * acx;
+
+      addTo(srcIndexOfVertex[ia] | 0, nx, ny, nz);
+      addTo(srcIndexOfVertex[ib] | 0, nx, ny, nz);
+      addTo(srcIndexOfVertex[ic] | 0, nx, ny, nz);
+    };
+
+    if (geometry.index) {
+      const idx = geometry.index.array;
+      for (let i = 0; i < idx.length; i += 3) {
+        accTri(idx[i], idx[i + 1], idx[i + 2]);
+      }
+    } else {
+      for (let i = 0; i < vCount; i += 3) {
+        accTri(i, i + 1, i + 2);
+      }
+    }
+
+    let normalAttr = geometry.attributes.normal;
+    if (!normalAttr || normalAttr.count !== vCount) {
+      normalAttr = new THREE.BufferAttribute(new Float32Array(vCount * 3), 3);
+      geometry.setAttribute("normal", normalAttr);
+    }
+
+    const n = normalAttr.array;
+    for (let i = 0; i < vCount; i++) {
+      const s = (srcIndexOfVertex[i] | 0) * 3;
+      const x = sums[s],
+        y = sums[s + 1],
+        z = sums[s + 2];
+      const len = Math.hypot(x, y, z) || 1;
+
+      const o = i * 3;
+      n[o] = x / len;
+      n[o + 1] = y / len;
+      n[o + 2] = z / len;
+    }
+    normalAttr.needsUpdate = true;
+  }
+
   useEffect(() => {
-    let landmarker;
     let running = true;
     let isMounted = true;
     let imgW = 0;
     let imgH = 0;
-    let imgCanvas = null;
+
     let prevMouseX = 0;
     let prevMouseY = 0;
     let isMouseDown = false;
@@ -42,13 +158,17 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
 
     function getW() {
       if (sourceType === "image") return imgW;
-      if (sourceType === "camera" || sourceType === "video") return videoRef.current?.videoWidth || containerRef.current.offsetWidth;
+      if (sourceType === "camera" || sourceType === "video") {
+        return videoRef.current?.videoWidth || containerRef.current.offsetWidth;
+      }
       return containerRef.current.offsetWidth;
     }
 
     function getH() {
       if (sourceType === "image") return imgH;
-      if (sourceType === "camera" || sourceType === "video") return videoRef.current?.videoHeight || containerRef.current.offsetHeight;
+      if (sourceType === "camera" || sourceType === "video") {
+        return videoRef.current?.videoHeight || containerRef.current.offsetHeight;
+      }
       return containerRef.current.offsetHeight;
     }
 
@@ -65,11 +185,10 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
         });
 
         while (vid.videoWidth === 0) {
-          await new Promise(res => setTimeout(res, 10));
+          await new Promise((res) => setTimeout(res, 10));
         }
 
         await vid.play();
-
       } else if (sourceType === "video") {
         vid.src = sourcePath;
         vid.loop = true;
@@ -80,11 +199,10 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
         });
 
         while (vid.videoWidth === 0) {
-          await new Promise(res => setTimeout(res, 10));
+          await new Promise((res) => setTimeout(res, 10));
         }
 
         await vid.play();
-
       } else if (sourceType === "image") {
         const img = new Image();
 
@@ -101,7 +219,6 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
 
         imgW = img.width;
         imgH = img.height;
-
       } else if (sourceType === "none") {
         imgW = containerRef.current.offsetWidth;
         imgH = containerRef.current.offsetHeight;
@@ -127,34 +244,26 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       const fileset = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
       );
-
       if (!isMounted) return;
 
       landmarkerRef.current = await FaceLandmarker.createFromOptions(fileset, {
-        baseOptions: {
-          modelAssetPath: basePath + "face_landmarker.task"
-        },
+        baseOptions: { modelAssetPath: basePath + "face_landmarker.task" },
         runningMode: isVideo ? "VIDEO" : "IMAGE",
         numFaces: 1,
       });
-
       if (!isMounted) return;
 
-      if (rendererRef.current) {
-        rendererRef.current.dispose();
-      }
+      if (rendererRef.current) rendererRef.current.dispose();
 
       const canvas = canvasRef.current;
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
 
       const { renderer, scene, camera } = setupScene(canvas, canvasWidth, canvasHeight);
-
       rendererRef.current = renderer;
       sceneRef.current = scene;
       cameraRef.current = camera;
 
-      // light
       const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
       directionalLight.position.set(1, 1, 2);
       scene.add(directionalLight);
@@ -162,15 +271,17 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
       scene.add(ambientLight);
 
-      const objText = await fetch(basePath + "obj/" + (selectedObjFile || "canonical_face_model.obj")).then((r) => r.text());
+      const objText = await fetch(
+        basePath + "obj/" + (selectedObjFile || "canonical_face_model.obj")
+      ).then((r) => r.text());
 
-      // Blender の OBJ エクスポートはデフォルトで Y-up 変換済みのため変換不要
       const { geometry, srcIndexOfVertex } = parseOBJ(objText);
 
       geomRef.current = geometry;
       srcIndexRef.current = srcIndexOfVertex;
 
-      const isCanonical = (selectedObjFile || "canonical_face_model.obj") === "canonical_face_model.obj";
+      const isCanonical =
+        (selectedObjFile || "canonical_face_model.obj") === "canonical_face_model.obj";
       isCanonicalRef.current = isCanonical;
 
       if (!isCanonical) {
@@ -180,17 +291,24 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
         modelSizeRef.current = Math.max(bboxSize.x, bboxSize.y, bboxSize.z);
       }
 
+      if (smoothShadingRef.current) {
+        const pos = geometry.getAttribute("position");
+        const nor = geometry.getAttribute("normal");
+        const hasNormals = !!pos && !!nor && nor.count === pos.count;
+        if (!hasNormals) computeSmoothNormalsFromSrcIndex(geometry, srcIndexOfVertex);
+      }
+
       const baseMatm = new THREE.MeshStandardMaterial({
-        color: 0xF7C3A9
+        color: 0xf7c3a9,
+        flatShading: !smoothShadingRef.current,
       });
 
       const baseMesh = new THREE.Mesh(geometry, baseMatm);
-
+      baseMeshRef.current = baseMesh;
       baseMesh.position.z = -0.1;
 
       if (sourceType === "none") {
         geometry.computeBoundingBox();
-
         const size = new THREE.Vector3();
         geometry.boundingBox.getSize(size);
 
@@ -199,26 +317,30 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
         const faceScale = targetSize / maxDimension;
 
         baseMesh.scale.multiplyScalar(faceScale);
-
         scene.add(baseMesh);
       }
 
+      const createTexMesh = async () => {
+        const tex = await new THREE.TextureLoader().loadAsync(textureImage);
+        tex.colorSpace = THREE.SRGBColorSpace;
+
+        const texMat = new THREE.MeshStandardMaterial({
+          map: tex,
+          transparent: true,
+          side: THREE.DoubleSide,
+          flatShading: !smoothShadingRef.current,
+        });
+
+        const texMesh = new THREE.Mesh(geometry, texMat);
+        texMesh.visible = showTexure;
+        return texMesh;
+      };
+
       if (sourceType === "none") {
         try {
-          const tex = await new THREE.TextureLoader().loadAsync(textureImage);
-
-          tex.colorSpace = THREE.SRGBColorSpace;
-
-          const texMat = new THREE.MeshStandardMaterial({
-            map: tex,
-            transparent: true,
-            side: THREE.DoubleSide,
-          });
-
-          const texMesh = new THREE.Mesh(geometry, texMat);
+          const texMesh = await createTexMesh();
 
           geometry.computeBoundingBox();
-
           const size = new THREE.Vector3();
           geometry.boundingBox.getSize(size);
 
@@ -228,59 +350,34 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
 
           texMesh.scale.multiplyScalar(faceScale);
 
-          texMesh.visible = showTexure;
-
           scene.add(texMesh);
-
           meshRef.current = texMesh;
-
         } catch (error) {
           console.error("Failed to load texture:", textureImage, error);
         }
-
       } else {
         try {
-          const tex = await new THREE.TextureLoader().loadAsync(textureImage);
-
-          tex.colorSpace = THREE.SRGBColorSpace;
-
-          const texMat = new THREE.MeshStandardMaterial({
-            map: tex,
-            transparent: true,
-            side: THREE.DoubleSide,
-          });
-
-          const texMesh = new THREE.Mesh(geometry, texMat);
-
-          texMesh.visible = showTexure;
-
+          const texMesh = await createTexMesh();
           scene.add(texMesh);
-
           meshRef.current = texMesh;
-
         } catch (error) {
           console.error("Failed to load texture:", textureImage, error);
         }
       }
 
-      // drawCanvas が init 完了より先に届いていた場合に適用
       if (drawCanvasPropRef.current && meshRef.current) {
         const tex = new THREE.CanvasTexture(drawCanvasPropRef.current);
-
         tex.colorSpace = THREE.SRGBColorSpace;
 
-        if (drawCanvasTexRef.current) {
-          drawCanvasTexRef.current.dispose();
-        }
-
+        if (drawCanvasTexRef.current) drawCanvasTexRef.current.dispose();
         drawCanvasTexRef.current = tex;
 
         meshRef.current.material.dispose();
-
         meshRef.current.material = new THREE.MeshStandardMaterial({
           map: tex,
           transparent: true,
           side: THREE.DoubleSide,
+          flatShading: !smoothShadingRef.current,
         });
       }
 
@@ -311,7 +408,6 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
         displayH = canvasWidth / mediaAspect;
         offsetX = 0;
         offsetY = (canvasHeight - displayH) / 2;
-
       } else {
         displayH = canvasHeight;
         displayW = canvasHeight * mediaAspect;
@@ -336,38 +432,37 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
         }
 
         pos.needsUpdate = true;
-        geomRef.current.computeVertexNormals();
 
+        if (smoothShadingRef.current) {
+          computeSmoothNormalsFromSrcIndex(geomRef.current, srcIndexRef.current);
+        }
       } else {
         const mesh = meshRef.current;
         if (!mesh) return;
 
-        const toLM = (p) => new THREE.Vector3(
-          MIRROR ? -(p.x * displayW + offsetX - canvasWidth / 2) : p.x * displayW + offsetX - canvasWidth / 2,
-          canvasHeight / 2 - (p.y * displayH + offsetY),
-          -p.z * displayW * 0.8
-        );
+        const toLM = (p) =>
+          new THREE.Vector3(
+            MIRROR
+              ? -(p.x * displayW + offsetX - canvasWidth / 2)
+              : p.x * displayW + offsetX - canvasWidth / 2,
+            canvasHeight / 2 - (p.y * displayH + offsetY),
+            -p.z * displayW * 0.8
+          );
 
-        // 顔の方向・スケールを計算するランドマーク
-        const leftEye  = toLM(pts[33]);   // 左目外端
-        const rightEye = toLM(pts[263]);  // 右目外端
-        const chin     = toLM(pts[152]);  // 顎
-        const forehead = toLM(pts[10]);   // 額上部
+        const leftEye = toLM(pts[33]);
+        const rightEye = toLM(pts[263]);
+        const chin = toLM(pts[152]);
+        const forehead = toLM(pts[10]);
 
-        // 顔の中心（額〜顎の中点）
         const faceCenter = new THREE.Vector3().addVectors(forehead, chin).multiplyScalar(0.5);
 
-        // スケール: 顔の高さ / モデルのバウンディングボックスサイズ
         const faceHeight = forehead.distanceTo(chin);
         if (faceHeight < 1) return;
         const scale = (faceHeight / modelSizeRef.current) * objScaleRef.current;
 
-        // 顔の座標軸を計算
         const up = new THREE.Vector3().subVectors(forehead, chin).normalize();
         const right = new THREE.Vector3().subVectors(rightEye, leftEye).normalize();
-        // upと直交化
         right.sub(up.clone().multiplyScalar(right.dot(up))).normalize();
-        // forward = right × up (+Z方向 = カメラ側)
         const forward = new THREE.Vector3().crossVectors(right, up).normalize();
 
         const rotMatrix = new THREE.Matrix4().makeBasis(right, up, forward);
@@ -387,24 +482,15 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
 
         if (res.faceLandmarks?.length) {
           applyLandmarks(res.faceLandmarks[0]);
-
-          if (meshRef.current) {
-            meshRef.current.visible = showTexureRef.current;
-          }
-
+          if (meshRef.current) meshRef.current.visible = showTexureRef.current;
         } else {
-          if (meshRef.current) {
-            meshRef.current.visible = false;
-          }
+          if (meshRef.current) meshRef.current.visible = false;
         }
       }
 
-      if (drawCanvasTexRef.current) {
-        drawCanvasTexRef.current.needsUpdate = true;
-      }
+      if (drawCanvasTexRef.current) drawCanvasTexRef.current.needsUpdate = true;
 
       rendererRef.current.render(sceneRef.current, cameraRef.current);
-
       requestAnimationFrame(loopVideo);
     }
 
@@ -413,15 +499,9 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
 
       if (res.faceLandmarks?.length) {
         applyLandmarks(res.faceLandmarks[0]);
-
-        if (meshRef.current) {
-          meshRef.current.visible = showTexureRef.current;
-        }
-
+        if (meshRef.current) meshRef.current.visible = showTexureRef.current;
       } else {
-        if (meshRef.current) {
-          meshRef.current.visible = false;
-        }
+        if (meshRef.current) meshRef.current.visible = false;
       }
 
       rendererRef.current.render(sceneRef.current, cameraRef.current);
@@ -437,12 +517,9 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
         });
       }
 
-      if (drawCanvasTexRef.current) {
-        drawCanvasTexRef.current.needsUpdate = true;
-      }
+      if (drawCanvasTexRef.current) drawCanvasTexRef.current.needsUpdate = true;
 
       rendererRef.current.render(sceneRef.current, cameraRef.current);
-
       requestAnimationFrame(loopNone);
     }
 
@@ -451,7 +528,6 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
 
       if (drawCanvasTexRef.current) {
         drawCanvasTexRef.current.needsUpdate = true;
-
         rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
 
@@ -529,9 +605,8 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       landmarkerRef.current?.close();
 
       const vid = videoRef.current;
-
       if (vid?.srcObject) {
-        vid.srcObject.getTracks().forEach(t => t.stop());
+        vid.srcObject.getTracks().forEach((t) => t.stop());
         vid.srcObject = null;
       }
 
@@ -548,6 +623,21 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
   useEffect(() => {
     objScaleRef.current = objScale ?? 1.0;
   }, [objScale]);
+
+  useEffect(() => {
+    smoothShadingRef.current = !!smoothShading;
+
+    if (meshRef.current?.material) applyShadingToMaterial(meshRef.current.material);
+    if (baseMeshRef.current?.material) applyShadingToMaterial(baseMeshRef.current.material);
+
+    if (smoothShadingRef.current && geomRef.current && srcIndexRef.current) {
+      computeSmoothNormalsFromSrcIndex(geomRef.current, srcIndexRef.current);
+    }
+
+    if (rendererRef.current && sceneRef.current && cameraRef.current) {
+      rendererRef.current.render(sceneRef.current, cameraRef.current);
+    }
+  }, [smoothShading]);
 
   useEffect(() => {
     showTexureRef.current = showTexure;
@@ -567,23 +657,21 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
 
       img.onload = () => {
         const tex = new THREE.Texture(img);
-
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.needsUpdate = true;
 
         meshRef.current.material.dispose();
-
         meshRef.current.material = new THREE.MeshStandardMaterial({
           map: tex,
           transparent: true,
           side: THREE.DoubleSide,
+          flatShading: !smoothShadingRef.current,
         });
 
         rendererRef.current.render(sceneRef.current, cameraRef.current);
       };
 
       img.onerror = (e) => console.error("Image load failed:", e);
-
       img.src = textureImage;
     }
   };
@@ -594,51 +682,43 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
 
       img.onload = () => {
         const tex = new THREE.Texture(img);
-
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.needsUpdate = true;
 
         meshRef.current.material.dispose();
-
         meshRef.current.material = new THREE.MeshStandardMaterial({
           map: tex,
           transparent: true,
           side: THREE.DoubleSide,
+          flatShading: !smoothShadingRef.current,
         });
 
         rendererRef.current.render(sceneRef.current, cameraRef.current);
       };
 
       img.onerror = (e) => console.error("Image load failed:", e);
-
       img.src = textureImage;
     }
   }, [textureImage]);
 
   useEffect(() => {
     drawCanvasPropRef.current = drawCanvas;
-
     if (!meshRef.current) return;
 
     if (drawCanvas) {
       const tex = new THREE.CanvasTexture(drawCanvas);
-
       tex.colorSpace = THREE.SRGBColorSpace;
 
-      if (drawCanvasTexRef.current) {
-        drawCanvasTexRef.current.dispose();
-      }
-
+      if (drawCanvasTexRef.current) drawCanvasTexRef.current.dispose();
       drawCanvasTexRef.current = tex;
 
       meshRef.current.material.dispose();
-
       meshRef.current.material = new THREE.MeshStandardMaterial({
         map: tex,
         transparent: true,
         side: THREE.DoubleSide,
+        flatShading: !smoothShadingRef.current,
       });
-
     } else {
       if (drawCanvasTexRef.current) {
         drawCanvasTexRef.current.dispose();
@@ -652,16 +732,15 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
           if (!meshRef.current) return;
 
           const tex = new THREE.Texture(img);
-
           tex.colorSpace = THREE.SRGBColorSpace;
           tex.needsUpdate = true;
 
           meshRef.current.material.dispose();
-
           meshRef.current.material = new THREE.MeshStandardMaterial({
             map: tex,
             transparent: true,
             side: THREE.DoubleSide,
+            flatShading: !smoothShadingRef.current,
           });
 
           rendererRef.current.render(sceneRef.current, cameraRef.current);
@@ -684,11 +763,7 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
       }}
     >
       {sourceType === "image" && (
-        <img
-          src={imageSource}
-          alt=""
-          className="mp-layer mp-media"
-        />
+        <img src={imageSource} alt="" className="mp-layer mp-media" />
       )}
 
       {(sourceType === "camera" || sourceType === "video") && (
@@ -703,10 +778,7 @@ export default function Mp({ showTexure, sourceType, textureImage, imageSource, 
         />
       )}
 
-      <canvas
-        ref={canvasRef}
-        className="mp-layer mp-canvas"
-      />
+      <canvas ref={canvasRef} className="mp-layer mp-canvas" />
     </div>
   );
 }

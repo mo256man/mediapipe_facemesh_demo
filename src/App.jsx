@@ -39,6 +39,7 @@ function App() {
   const [selectedObjScale, setSelectedObjScale] = useState(
     textureFiles[0]?.scale ?? 1.0
   );
+  const [smoothShading, setSmoothShading] = useState(false);
 
   useEffect(() => {
     const generateThumbnails = async () => {
@@ -171,17 +172,17 @@ function App() {
 
   return (
     <>
-      <Header showTexure={showTexure} setShowTexure={setShowTexure} sourceType={sourceType} setSourceType={setSourceType} textureImage={textureImage} setTextureImage={setTextureImage} imageSource={imageSource} setImageSource={setImageSource} videoSource={videoSource} setVideoSource={setVideoSource} textureFiles={textureFilesWithThumbnails} textureFolder={textureFolder} imageFiles={imageFilesWithThumbnails} imageFolder={imageFolder} videoFiles={videoFilesWithThumbnails} videoFolder={videoFolder} thumbnailFolder={thumbnailFolder} basePath={basePath} editMode={editMode} setEditMode={setEditMode} savedImages={savedImages} setSavedImages={setSavedImages} importedTextures={importedTextures} setImportedTextures={setImportedTextures} importedImages={importedImages} setImportedImages={setImportedImages} importedVideos={importedVideos} setImportedVideos={setImportedVideos} captureMode={captureMode} setCaptureMode={setCaptureMode} selectedObjFile={selectedObjFile} setSelectedObjFile={setSelectedObjFile} selectedObjScale={selectedObjScale} setSelectedObjScale={setSelectedObjScale} />
+      <Header showTexure={showTexure} setShowTexure={setShowTexure} sourceType={sourceType} setSourceType={setSourceType} textureImage={textureImage} setTextureImage={setTextureImage} imageSource={imageSource} setImageSource={setImageSource} videoSource={videoSource} setVideoSource={setVideoSource} textureFiles={textureFilesWithThumbnails} textureFolder={textureFolder} imageFiles={imageFilesWithThumbnails} imageFolder={imageFolder} videoFiles={videoFilesWithThumbnails} videoFolder={videoFolder} thumbnailFolder={thumbnailFolder} basePath={basePath} editMode={editMode} setEditMode={setEditMode} savedImages={savedImages} setSavedImages={setSavedImages} importedTextures={importedTextures} setImportedTextures={setImportedTextures} importedImages={importedImages} setImportedImages={setImportedImages} importedVideos={importedVideos} setImportedVideos={setImportedVideos} captureMode={captureMode} setCaptureMode={setCaptureMode} selectedObjFile={selectedObjFile} setSelectedObjFile={setSelectedObjFile} selectedObjScale={selectedObjScale} setSelectedObjScale={setSelectedObjScale} smoothShading={smoothShading} setSmoothShading={setSmoothShading} />
       <div className="main" style={{ display: "flex", flexDirection: "row" }}>
         {!editMode && !captureMode && (
           <div style={{ flex: 1, minWidth: 0 }}>
-            <FaceMeshViewer showTexure={showTexure} sourceType={sourceType} textureImage={textureImage} imageSource={imageSource} videoSource={videoSource} drawCanvas={drawCanvasEl} selectedObjFile={selectedObjFile} objScale={selectedObjScale} />
+            <FaceMeshViewer showTexure={showTexure} sourceType={sourceType} textureImage={textureImage} imageSource={imageSource} videoSource={videoSource} drawCanvas={drawCanvasEl} selectedObjFile={selectedObjFile} objScale={selectedObjScale} smoothShading={smoothShading} />
           </div>
         )}
         {editMode && !captureMode && (
           <>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <FaceMeshViewer showTexure={showTexure} sourceType={sourceType} textureImage={textureImage} imageSource={imageSource} videoSource={videoSource} drawCanvas={drawCanvasEl} selectedObjFile={selectedObjFile} objScale={selectedObjScale} />
+              <FaceMeshViewer showTexure={showTexure} sourceType={sourceType} textureImage={textureImage} imageSource={imageSource} videoSource={videoSource} drawCanvas={drawCanvasEl} selectedObjFile={selectedObjFile} objScale={selectedObjScale} smoothShading={smoothShading} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <Draw ref={setDrawCanvasEl} savedImages={savedImages} setSavedImages={setSavedImages} />
