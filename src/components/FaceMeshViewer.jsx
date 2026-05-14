@@ -15,7 +15,7 @@ export default function Mp({
   drawCanvas,
   selectedObjFile,
   objScale,
-  smoothShading, // 親から受け取る
+  smoothShading,
 }) {
   const containerRef = useRef(null);
   const videoRef = useRef(null);
@@ -156,6 +156,12 @@ export default function Mp({
     let rotationX = 0;
     let rotationY = 0;
 
+    // none用ホイール拡大縮小
+    let zoomMul = 1.0;
+    const zoomMin = 0.1;
+    const zoomMax = 10.0;
+    const zoomSpeed = 0.0015;
+
     function getW() {
       if (sourceType === "image") return imgW;
       if (sourceType === "camera" || sourceType === "video") {
@@ -233,7 +239,6 @@ export default function Mp({
 
       const srcW = getW();
       const srcH = getH();
-
       if (!isMounted) return;
 
       const canvasWidth = containerRef.current.offsetWidth;
@@ -317,6 +322,8 @@ export default function Mp({
         const faceScale = targetSize / maxDimension;
 
         baseMesh.scale.multiplyScalar(faceScale);
+        baseMesh.userData.baseScale = baseMesh.scale.x;
+
         scene.add(baseMesh);
       }
 
@@ -349,6 +356,7 @@ export default function Mp({
           const faceScale = targetSize / maxDimension;
 
           texMesh.scale.multiplyScalar(faceScale);
+          texMesh.userData.baseScale = texMesh.scale.x;
 
           scene.add(texMesh);
           meshRef.current = texMesh;
@@ -379,6 +387,7 @@ export default function Mp({
           side: THREE.DoubleSide,
           flatShading: !smoothShadingRef.current,
         });
+        applyShadingToMaterial(meshRef.current.material);
       }
 
       if (isVideo) {
@@ -586,6 +595,30 @@ export default function Mp({
       isMouseDown = false;
     }
 
+    function handleWheel(e) {
+      if (sourceType !== "none") return;
+      if (!isPointerOverViewerRef.current) return;
+
+      e.preventDefault();
+
+      const factor = Math.exp(-e.deltaY * zoomSpeed);
+      zoomMul *= factor;
+      zoomMul = Math.max(zoomMin, Math.min(zoomMax, zoomMul));
+
+      const applyScale = (m) => {
+        if (!m) return;
+        const base = m.userData.baseScale ?? m.scale.x;
+        m.scale.setScalar(base * zoomMul);
+      };
+
+      applyScale(baseMeshRef.current);
+      applyScale(meshRef.current);
+
+      if (rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      }
+    }
+
     requestAnimationFrame(() => {
       init();
     });
@@ -597,6 +630,9 @@ export default function Mp({
     window.addEventListener("touchstart", handleTouchStart);
     window.addEventListener("touchmove", handleTouchMove, { passive: false });
     window.addEventListener("touchend", handleTouchEnd);
+
+    const el = containerRef.current;
+    el?.addEventListener("wheel", handleWheel, { passive: false });
 
     return () => {
       isMounted = false;
@@ -617,6 +653,8 @@ export default function Mp({
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
+
+      el?.removeEventListener("wheel", handleWheel);
     };
   }, [sourceType, imageSource, videoSource, selectedObjFile]);
 
@@ -650,31 +688,6 @@ export default function Mp({
       }
     }
   }, [showTexure]);
-
-  const reloadTexture = () => {
-    if (meshRef.current && rendererRef.current && sceneRef.current && cameraRef.current) {
-      const img = new Image();
-
-      img.onload = () => {
-        const tex = new THREE.Texture(img);
-        tex.colorSpace = THREE.SRGBColorSpace;
-        tex.needsUpdate = true;
-
-        meshRef.current.material.dispose();
-        meshRef.current.material = new THREE.MeshStandardMaterial({
-          map: tex,
-          transparent: true,
-          side: THREE.DoubleSide,
-          flatShading: !smoothShadingRef.current,
-        });
-
-        rendererRef.current.render(sceneRef.current, cameraRef.current);
-      };
-
-      img.onerror = (e) => console.error("Image load failed:", e);
-      img.src = textureImage;
-    }
-  };
 
   useEffect(() => {
     if (meshRef.current && rendererRef.current && sceneRef.current && cameraRef.current) {

@@ -177,6 +177,16 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
 
             <div className="section-gap" />
 
+            <div className="section-title">Upload</div>
+            <div className="menu-item upload" onClick={(e) => { e.stopPropagation(); handleUploadImage(e); closeSubmenus(); }}>
+              🖼️ Upload Image
+            </div>
+            <div className="menu-item upload" onClick={(e) => { e.stopPropagation(); handleUploadVideo(e); closeSubmenus(); }}>
+              🎞️ Upload Video
+            </div>
+
+            <div className="section-gap" />
+
             <div className="section-title">Source</div>
             {["none", "image", "video", "camera"].map((type) => (
               <button
@@ -415,11 +425,24 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
           <div>select sample image</div>
           <div className="submenu-popup-grid">
             {imageFiles && imageFiles.map((item) => (
-              <div key={item.filename} onClick={(e) => { e.stopPropagation(); setSourceType("image"); setImageSource(basePath + imageFolder + "/" + item.filename); setImageSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
-                <div className={imageSource && imageSource.includes ? (imageSource.includes(item.filename) ? "img_base selected" : "img_base") : "img_base"}>
+              <div key={item.filename} style={{ cursor: "pointer", display: "flex", flexDirection: "column" }} onClick={(e) => { e.stopPropagation(); setSourceType("image"); setImageSource(basePath + imageFolder + "/" + item.filename); setImageSubmenuOpen(false); }}>
+                <div className={imageSource && imageSource.includes ? (imageSource.includes(item.filename) ? "img_base selected" : "img_base") : "img_base"} style={{ marginBottom: "4px" }}>
                   <img src={item.thumbnail} alt={item.name} />
                 </div>
-                <span style={{ fontSize: "12px", display: "block", textAlign: "center", color: "#fff", marginTop: "4px" }}>{item.name}</span>
+                <div style={{ fontSize: "11px", flex: 1, display: "flex", flexDirection: "column" }}>
+                  <div style={{ fontWeight: "bold", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</div>
+                  <div style={{ fontSize: "10px", color: "#aaa", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</div>
+                  <div style={{ fontSize: "10px", color: "#aaa", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.site}</div>
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: "10px", color: "#5ba3d0", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: "4px" }}
+                    onClick={(e) => { e.stopPropagation(); }}
+                  >
+                    Link
+                  </a>
+                </div>
               </div>
             ))}
           </div>
@@ -453,12 +476,27 @@ export default function Header({ showTexure, setShowTexure, sourceType, setSourc
           <div>select sample video</div>
           <div className="submenu-popup-grid">
             {videoFiles && videoFiles.map((item) => (
-              <div key={item.filename} className="video-thumbnail" onClick={(e) => { e.stopPropagation(); setSourceType("video"); setVideoSource(basePath + videoFolder + "/" + item.filename); setVideoSubmenuOpen(false); }} style={{ cursor: "pointer" }}>
-                <div className={videoSource && videoSource.includes(item.filename) ? "img_base selected" : "img_base"}>
+              <div key={item.filename} style={{ cursor: "pointer", display: "flex", flexDirection: "column" }} onClick={(e) => { e.stopPropagation(); setSourceType("video"); setVideoSource(basePath + videoFolder + "/" + item.filename); setVideoSubmenuOpen(false); }}>
+                <div className={videoSource && videoSource.includes(item.filename) ? "img_base selected" : "img_base"} style={{ marginBottom: "4px", position: "relative" }}>
                   <img src={item.thumbnail} alt={item.name} />
                   <img src={basePath + 'film.png'} alt="" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
                 </div>
-                <span style={{ fontSize: "12px", display: "block", textAlign: "center", color: "#fff", marginTop: "4px" }}>{item.name}</span>
+                <div style={{ fontSize: "11px", flex: 1, display: "flex", flexDirection: "column" }}>
+                  <div style={{ fontWeight: "bold", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</div>
+                  <div style={{ fontSize: "10px", color: "#aaa", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</div>
+                  <div style={{ fontSize: "10px", color: "#aaa", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.site}</div>
+                  {item.url && (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontSize: "10px", color: "#5ba3d0", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: "4px" }}
+                      onClick={(e) => { e.stopPropagation(); }}
+                    >
+                      Link
+                    </a>
+                  )}
+                </div>
               </div>
             ))}
           </div>

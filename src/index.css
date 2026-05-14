@@ -176,6 +176,7 @@ html, body {
   left: 50%;
   transform: translate(-50%, -50%);
   background: #222;
+  min-width: 360px;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
@@ -188,9 +189,8 @@ html, body {
 
 .submenu-popup-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 200px);
   gap: 8px;
-  width: fit-content;
 }
 
 .header-title {
