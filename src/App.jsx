@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Header from './components/Header'
+import Menu from './components/Menu'
 import FaceMeshViewer from './components/FaceMeshViewer'
 import Draw from './components/Draw'
 import FaceCapture from './components/FaceCapture'
@@ -172,7 +172,10 @@ function App() {
 
   return (
     <>
-      <Header showTexure={showTexure} setShowTexure={setShowTexure} sourceType={sourceType} setSourceType={setSourceType} textureImage={textureImage} setTextureImage={setTextureImage} imageSource={imageSource} setImageSource={setImageSource} videoSource={videoSource} setVideoSource={setVideoSource} textureFiles={textureFilesWithThumbnails} textureFolder={textureFolder} imageFiles={imageFilesWithThumbnails} imageFolder={imageFolder} videoFiles={videoFilesWithThumbnails} videoFolder={videoFolder} thumbnailFolder={thumbnailFolder} basePath={basePath} editMode={editMode} setEditMode={setEditMode} savedImages={savedImages} setSavedImages={setSavedImages} importedTextures={importedTextures} setImportedTextures={setImportedTextures} importedImages={importedImages} setImportedImages={setImportedImages} importedVideos={importedVideos} setImportedVideos={setImportedVideos} captureMode={captureMode} setCaptureMode={setCaptureMode} selectedObjFile={selectedObjFile} setSelectedObjFile={setSelectedObjFile} selectedObjScale={selectedObjScale} setSelectedObjScale={setSelectedObjScale} smoothShading={smoothShading} setSmoothShading={setSmoothShading} />
+      <Menu showTexure={showTexure} setShowTexure={setShowTexure} sourceType={sourceType} setSourceType={setSourceType} textureImage={textureImage} setTextureImage={setTextureImage} imageSource={imageSource} setImageSource={setImageSource} videoSource={videoSource} setVideoSource={setVideoSource} textureFiles={textureFilesWithThumbnails} textureFolder={textureFolder} imageFiles={imageFilesWithThumbnails} imageFolder={imageFolder} videoFiles={videoFilesWithThumbnails} videoFolder={videoFolder} thumbnailFolder={thumbnailFolder} basePath={basePath} editMode={editMode} setEditMode={setEditMode} savedImages={savedImages} setSavedImages={setSavedImages} importedTextures={importedTextures} setImportedTextures={setImportedTextures} importedImages={importedImages} setImportedImages={setImportedImages} importedVideos={importedVideos} setImportedVideos={setImportedVideos} captureMode={captureMode} setCaptureMode={setCaptureMode} selectedObjFile={selectedObjFile} setSelectedObjFile={setSelectedObjFile} selectedObjScale={selectedObjScale} setSelectedObjScale={setSelectedObjScale} smoothShading={smoothShading} setSmoothShading={setSmoothShading} />
+      <div className="header-title" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", cursor: "pointer" }}>
+        MediaPipe FaceMesh Demo
+      </div>
       <div className="main" style={{ display: "flex", flexDirection: "row" }}>
         {!editMode && !captureMode && (
           <div style={{ flex: 1, minWidth: 0 }}>
