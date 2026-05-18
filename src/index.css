@@ -48,6 +48,7 @@ html, body {
 
 .menu-trigger {
   border: 2px solid #eee;
+  background: #222;
   border-radius: 4px;
   padding: 2px 20px;
   height: 100%;

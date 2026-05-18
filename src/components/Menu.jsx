@@ -401,6 +401,7 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
             <div className="submenu-title">Image</div>
             <button onClick={(e) => { e.stopPropagation(); handleUploadImage(e); }} className="submenu-header-button">Import Image</button>
           </div>
+          <hr />
           <div className="submenu-popup-grid">
             {imageFiles && imageFiles.map((item) => (
               <div key={item.filename} style={{ cursor: "pointer", display: "flex", flexDirection: "column" }} onClick={(e) => { e.stopPropagation(); setSourceType("image"); setImageSource(basePath + imageFolder + "/" + item.filename); setImageSubmenuOpen(false); }}>
