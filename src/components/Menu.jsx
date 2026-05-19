@@ -456,6 +456,7 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
             <div className="submenu-title">Video</div>
             <button onClick={(e) => { e.stopPropagation(); handleUploadVideo(e); }} className="submenu-header-button">Import Video</button>
           </div>
+          <hr />
           <div className="submenu-popup-grid">
             {videoFiles && videoFiles.map((item) => (
               <div key={item.filename} style={{ cursor: "pointer", display: "flex", flexDirection: "column" }} onClick={(e) => { e.stopPropagation(); setSourceType("video"); setVideoSource(basePath + videoFolder + "/" + item.filename); setVideoSubmenuOpen(false); }}>

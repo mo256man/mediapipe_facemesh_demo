@@ -19,6 +19,11 @@ html, body {
   overflow: hidden;
 }
 
+hr {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
 .header .left {
   margin-right: auto;
   position: relative;
