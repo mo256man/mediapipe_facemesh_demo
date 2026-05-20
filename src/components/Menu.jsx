@@ -239,73 +239,6 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
 
             <div className="section-gap" />
 
-            <div className="section-title">Credits</div>
-            <div style={{ display: "flex", gap: "10px", marginBottom: "10px", padding: "0 16px" }}>
-              <button
-                onClick={(e) => { e.stopPropagation(); setCreditType('image'); }}
-                className={creditType === 'image' ? "source-btn active-selected" : "source-btn"}
-              >
-                🖼️ Image
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setCreditType('video'); }}
-                className={creditType === 'video' ? "source-btn active-selected" : "source-btn"}
-              >
-                🎞️ Video
-              </button>
-            </div>
-
-            {creditType === 'image' && (
-              <>
-                <div className="credit-label" style={{ padding: "0 16px", marginBottom: "8px" }}>🖼️ Sample Image Sources</div>
-                {imageFiles && imageFiles.map((item, index) => (
-                  <div key={index} className="credit-item" style={{ fontSize: "12px", padding: "8px 16px" }}>
-                    <div className="img_base" style={{ marginBottom: "4px" }}>
-                      <img src={item.thumbnail} alt={item.name} style={{ maxWidth: "100px", maxHeight: "60px" }} />
-                    </div>
-                    <div className="credit-text" style={{ fontSize: "11px", marginBottom: "2px" }}>{item.title}</div>
-                    <div className="credit-text" style={{ fontSize: "11px", marginBottom: "2px" }}>{item.site}</div>
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="credit-link"
-                      style={{ fontSize: "10px" }}
-                    >
-                      {item.url}
-                    </a>
-                  </div>
-                ))}
-              </>
-            )}
-
-            {creditType === 'video' && (
-              <>
-                <div className="credit-label" style={{ padding: "0 16px", marginBottom: "8px" }}>🎞️ Sample Video Sources</div>
-                {videoFiles && videoFiles.map((item, index) => (
-                  <div key={index} className="credit-item" style={{ fontSize: "12px", padding: "8px 16px" }}>
-                    <div className="img_base" style={{ marginBottom: "4px", position: "relative", display: "inline-block" }}>
-                      <img src={item.thumbnail} alt={item.name} style={{ maxWidth: "100px", maxHeight: "60px" }} />
-                      <img src={basePath + 'film.png'} alt="" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', maxWidth: "100px", maxHeight: "60px" }} />
-                    </div>
-                    <div className="credit-text" style={{ fontSize: "11px", marginBottom: "2px" }}>{item.title || item.name}</div>
-                    <div className="credit-text" style={{ fontSize: "11px", marginBottom: "2px" }}>{item.site}</div>
-                    {item.url && (
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="credit-link"
-                        style={{ fontSize: "10px" }}
-                      >
-                        {item.url}
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </>
-            )}
-
             <div className="credit-item" style={{ fontSize: "12px", padding: "8px 16px", marginTop: "8px" }}>
               <div className="credit-label" style={{ marginBottom: "4px" }}>🧑‍💻 Author</div>
               <div className="credit-text" style={{ fontSize: "11px", marginBottom: "4px" }}>mo256man</div>
@@ -411,15 +344,14 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
                 <div style={{ fontSize: "11px", flex: 1, display: "flex", flexDirection: "column" }}>
                   <div style={{ fontWeight: "bold", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</div>
                   <div style={{ fontSize: "10px", color: "#aaa", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</div>
-                  <div style={{ fontSize: "10px", color: "#aaa", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.site}</div>
                   <a
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ fontSize: "10px", color: "#5ba3d0", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: "4px" }}
+                    style={{ fontSize: "10px", color: "#5ba3d0", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: "2px" }}
                     onClick={(e) => { e.stopPropagation(); }}
                   >
-                    Link
+                    {item.site}
                   </a>
                 </div>
               </div>
@@ -467,16 +399,15 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
                 <div style={{ fontSize: "11px", flex: 1, display: "flex", flexDirection: "column" }}>
                   <div style={{ fontWeight: "bold", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</div>
                   <div style={{ fontSize: "10px", color: "#aaa", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</div>
-                  <div style={{ fontSize: "10px", color: "#aaa", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.site}</div>
                   {item.url && (
                     <a
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ fontSize: "10px", color: "#5ba3d0", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: "4px" }}
+                      style={{ fontSize: "10px", color: "#5ba3d0", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: "2px" }}
                       onClick={(e) => { e.stopPropagation(); }}
                     >
-                      Link
+                      {item.site}
                     </a>
                   )}
                 </div>
