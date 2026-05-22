@@ -130,10 +130,11 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
   };
 
   return (
-    <div ref={menuRef} style={{ position: "absolute", top: 10, left: 10, zIndex: 100 }}>
-      <div className="menu-trigger" onClick={(e) => { e.stopPropagation(); setMenuOpen((prev) => !prev); }}>
-        ☰ Menu
-      </div>
+    <>
+      <div ref={menuRef} style={{ position: "absolute", top: 10, left: 10, zIndex: 100 }}>
+        <div className="menu-trigger" onClick={(e) => { e.stopPropagation(); setMenuOpen((prev) => !prev); }}>
+          ☰ Menu
+        </div>
 
       {menuOpen && (
         <div className="menu-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -197,45 +198,35 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
             <div className="section-gap" />
 
             <div className="section-title">Options</div>
-            <div className="menu-item texture-toggle">
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowTexure(!showTexure); }}
+              className={showTexure ? "source-btn active-selected" : "source-btn"}
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}
+            >
               <span>Show texture</span>
               <button
                 onClick={(e) => { e.stopPropagation(); setShowTexure(!showTexure); }}
                 className={showTexure ? "toggle-btn on" : "toggle-btn off"}
+                style={{ pointerEvents: "none" }}
               >
                 {showTexure ? "ON" : "OFF"}
               </button>
-            </div>
+            </button>
 
-            <div className="menu-item texture-toggle">
+            <button
+              onClick={(e) => { e.stopPropagation(); setSmoothShading(!smoothShading); }}
+              className={smoothShading ? "source-btn active-selected" : "source-btn"}
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}
+            >
               <span>Smooth Shading</span>
               <button
                 onClick={(e) => { e.stopPropagation(); setSmoothShading(!smoothShading); }}
                 className={smoothShading ? "toggle-btn on" : "toggle-btn off"}
+                style={{ pointerEvents: "none" }}
               >
                 {smoothShading ? "ON" : "OFF"}
               </button>
-            </div>
-
-            <div className="menu-item texture-toggle">
-              <span>✏️ Edit texture</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); setEditMode(!editMode); setCaptureMode(false); }}
-                className={editMode ? "toggle-btn on" : "toggle-btn off"}
-              >
-                {editMode ? "ON" : "OFF"}
-              </button>
-            </div>
-
-            <div className="menu-item texture-toggle">
-              <span>📷 Face Capture</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); setCaptureMode(!captureMode); setEditMode(false); }}
-                className={captureMode ? "toggle-btn on" : "toggle-btn off"}
-              >
-                {captureMode ? "ON" : "OFF"}
-              </button>
-            </div>
+            </button>
 
             <div className="section-gap" />
 
@@ -440,5 +431,23 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
         </div>
       )}
     </div>
+
+    <div style={{ position: "absolute", top: 10, right: 10, display: "flex", gap: "8px", zIndex: 101 }}>
+      <button
+        onClick={(e) => { e.stopPropagation(); setEditMode(!editMode); setCaptureMode(false); }}
+        className={editMode ? "toggle-btn on" : "toggle-btn off"}
+        style={{ padding: "8px 16px", fontSize: "14px", cursor: "pointer" }}
+      >
+        ✏️ Edit Texture {editMode ? "ON" : "OFF"}
+      </button>
+      <button
+        onClick={(e) => { e.stopPropagation(); setCaptureMode(!captureMode); setEditMode(false); }}
+        className={captureMode ? "toggle-btn on" : "toggle-btn off"}
+        style={{ padding: "8px 16px", fontSize: "14px", cursor: "pointer" }}
+      >
+        📷 Face Capture {captureMode ? "ON" : "OFF"}
+      </button>
+    </div>
+    </>
   );
 }
