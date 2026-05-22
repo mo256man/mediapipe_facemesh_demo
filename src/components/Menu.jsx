@@ -154,7 +154,34 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
                 <span>&gt;</span>
               </span>
             </button>
+            <div
+              className="source-btn"
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}
+            >
+              <span>Show texture</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowTexure(!showTexure); }}
+                className={showTexure ? "toggle-btn on" : "toggle-btn off"}
+                style={{ width: "50px" }}
+              >
+                {showTexure ? "ON" : "OFF"}
+              </button>
+            </div>
 
+            <div
+              className="source-btn"
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}
+            >
+              <span>Smooth Shading</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); setSmoothShading(!smoothShading); }}
+                className={smoothShading ? "toggle-btn on" : "toggle-btn off"}
+                style={{ width: "50px" }}
+              >
+                {smoothShading ? "ON" : "OFF"}
+              </button>
+            </div>
+            
             <div className="section-gap" />
 
             <div className="section-title">Source</div>
@@ -198,35 +225,7 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
             <div className="section-gap" />
 
             <div className="section-title">Options</div>
-            <button
-              onClick={(e) => { e.stopPropagation(); setShowTexure(!showTexure); }}
-              className={showTexure ? "source-btn active-selected" : "source-btn"}
-              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}
-            >
-              <span>Show texture</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowTexure(!showTexure); }}
-                className={showTexure ? "toggle-btn on" : "toggle-btn off"}
-                style={{ pointerEvents: "none" }}
-              >
-                {showTexure ? "ON" : "OFF"}
-              </button>
-            </button>
 
-            <button
-              onClick={(e) => { e.stopPropagation(); setSmoothShading(!smoothShading); }}
-              className={smoothShading ? "source-btn active-selected" : "source-btn"}
-              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}
-            >
-              <span>Smooth Shading</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); setSmoothShading(!smoothShading); }}
-                className={smoothShading ? "toggle-btn on" : "toggle-btn off"}
-                style={{ pointerEvents: "none" }}
-              >
-                {smoothShading ? "ON" : "OFF"}
-              </button>
-            </button>
 
             <div className="section-gap" />
 
@@ -436,14 +435,14 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
       <button
         onClick={(e) => { e.stopPropagation(); setEditMode(!editMode); setCaptureMode(false); }}
         className={editMode ? "toggle-btn on" : "toggle-btn off"}
-        style={{ padding: "8px 16px", fontSize: "14px", cursor: "pointer" }}
+        style={{ padding: "8px 16px", fontSize: "14px", cursor: "pointer", width: "140px" }}
       >
         ✏️ Edit Texture {editMode ? "ON" : "OFF"}
       </button>
       <button
         onClick={(e) => { e.stopPropagation(); setCaptureMode(!captureMode); setEditMode(false); }}
         className={captureMode ? "toggle-btn on" : "toggle-btn off"}
-        style={{ padding: "8px 16px", fontSize: "14px", cursor: "pointer" }}
+        style={{ padding: "8px 16px", fontSize: "14px", cursor: "pointer", width: "140px" }}
       >
         📷 Face Capture {captureMode ? "ON" : "OFF"}
       </button>
