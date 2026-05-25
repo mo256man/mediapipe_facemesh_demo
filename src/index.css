@@ -153,6 +153,7 @@ hr {
   padding: 3px 10px;
   font-size: 12px;
   cursor: pointer;
+  height: 48px;
 }
 
 .toggle-btn.on {

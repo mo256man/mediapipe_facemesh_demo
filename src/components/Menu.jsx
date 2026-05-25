@@ -224,11 +224,6 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
 
             <div className="section-gap" />
 
-            <div className="section-title">Options</div>
-
-
-            <div className="section-gap" />
-
             <div className="credit-item" style={{ fontSize: "12px", padding: "8px 16px", marginTop: "8px" }}>
               <div className="credit-label" style={{ marginBottom: "4px" }}>🧑‍💻 Author</div>
               <div className="credit-text" style={{ fontSize: "11px", marginBottom: "4px" }}>mo256man</div>
