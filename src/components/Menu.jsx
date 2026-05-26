@@ -203,18 +203,35 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
                     closeSubmenus();
                   }
                 }}
-                className={type === "image" ? (imageSubmenuOpen ? "source-btn active-open" : (sourceType === type ? "source-btn active-selected" : "source-btn")) : type === "video" ? (videoSubmenuOpen ? "source-btn active-open" : (sourceType === type ? "source-btn active-selected" : "source-btn")) : (sourceType === type ? "source-btn active-selected" : "source-btn")}
+                className={type === "image" ? (imageSubmenuOpen ? "source-btn active-open" : "source-btn") : type === "video" ? (videoSubmenuOpen ? "source-btn active-open" : "source-btn") : "source-btn"}
               >
-                {type === "none" && "⊘ None"}
+                {type === "none" && (
+                  <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ width: "16px", display: "inline-block", textAlign: "center" }}>
+                      {sourceType === "none" ? "✔" : ""}
+                    </span>
+                    <span>⊘ None</span>
+                  </span>
+                )}
                 {type === "image" && (
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                    <span>🖼️ Image</span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span style={{ width: "16px", display: "inline-block", textAlign: "center" }}>
+                        {sourceType === "image" ? "✔" : ""}
+                      </span>
+                      <span>🖼️ Image</span>
+                    </span>
                     <span>&gt;</span>
                   </span>
                 )}
                 {type === "video" && (
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                    <span>🎞️ Video</span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span style={{ width: "16px", display: "inline-block", textAlign: "center" }}>
+                        {sourceType === "video" ? "✔" : ""}
+                      </span>
+                      <span>🎞️ Video</span>
+                    </span>
                     <span>&gt;</span>
                   </span>
                 )}
@@ -426,21 +443,28 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
       )}
     </div>
 
-    <div style={{ position: "absolute", top: 10, right: 10, display: "flex", gap: "8px", zIndex: 101 }}>
+    <div style={{ position: "fixed", top: 10, left: "50%", transform: "translateX(-50%)", display: "flex", gap: "8px", zIndex: 101 }}>
       <button
-        onClick={(e) => { e.stopPropagation(); setEditMode(!editMode); setCaptureMode(false); }}
-        className={editMode ? "toggle-btn on" : "toggle-btn off"}
-        style={{ padding: "8px 16px", fontSize: "14px", cursor: "pointer", width: "140px" }}
+        onClick={(e) => { e.stopPropagation(); setEditMode(false); setCaptureMode(false); }}
+        className={!editMode && !captureMode ? "mode-btn active" : "mode-btn"}
+        style={{ padding: "8px 16px", fontSize: "14px", cursor: "pointer" }}
       >
-        ✏️ Edit Texture {editMode ? "ON" : "OFF"}
+        👁️ Viewer Mode
       </button>
       <button
-        onClick={(e) => { e.stopPropagation(); setCaptureMode(!captureMode); setEditMode(false); }}
-        className={captureMode ? "toggle-btn on" : "toggle-btn off"}
-        style={{ padding: "8px 16px", fontSize: "14px", cursor: "pointer", width: "140px" }}
+        onClick={(e) => { e.stopPropagation(); setEditMode(true); setCaptureMode(false); }}
+        className={editMode ? "mode-btn active" : "mode-btn"}
+        style={{ padding: "8px 16px", fontSize: "14px", cursor: "pointer" }}
       >
-        📷 Face Capture {captureMode ? "ON" : "OFF"}
+        ✏️ Edit Texture
       </button>
+      {/* <button
+        onClick={(e) => { e.stopPropagation(); setCaptureMode(true); setEditMode(false); }}
+        className={captureMode ? "mode-btn active" : "mode-btn"}
+        style={{ padding: "8px 16px", fontSize: "14px", cursor: "pointer" }}
+      >
+        📷 Face Capture
+      </button> */}
     </div>
     </>
   );

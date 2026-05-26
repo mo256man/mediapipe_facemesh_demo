@@ -76,7 +76,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 8px;
   background: repeating-conic-gradient(#3a3a3a 0% 25%, #2a2a2a 0% 50%) 0 0 /
     20px 20px;

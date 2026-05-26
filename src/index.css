@@ -164,6 +164,28 @@ hr {
   background: #f44336;
 }
 
+.mode-btn {
+  color: #ccc;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  background: #3a3a3a;
+  transition: all 0.2s ease;
+}
+
+.mode-btn:hover {
+  background: #4a4a4a;
+  border-color: #666;
+}
+
+.mode-btn.active {
+  background: #0078d4;
+  border-color: #0078d4;
+  color: #fff;
+}
+
 .source-btn {
   padding: 8px 12px;
   background: transparent;
@@ -188,9 +210,8 @@ hr {
 }
 
 .source-btn.active-open {
-  background: #FF9800;
-  color: #fff;
-  font-weight: bold;
+  background: #4a4a4a;
+  color: #ccc;
 }
 
 .sub-options {
