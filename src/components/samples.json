@@ -24,6 +24,11 @@
       "name": "Blenderモンキー",
       "obj": "monkey.obj",
       "scale": 2
+    },
+    { "filename": "hsv_gradient.png",
+      "name": "ティーポット",
+      "obj": "TEAPOT.obj",
+      "scale": 2
     }
   ],
   "iamge":
