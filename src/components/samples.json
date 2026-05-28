@@ -1,5 +1,20 @@
 {"texture":
   [
+    { "filename": "Skull.jpg",
+      "name": "ガイコツ",
+      "obj": "skull.obj",
+      "scale": 1.3,
+      "site":"Free3D",
+      "url":"https://free3d.com/3d-model/skull-v3--785914.html"
+    },
+    { "filename": "statue_diffuse.jpg",
+      "name": "モアイ",
+      "obj": "moai.obj",
+      "scale": 1.5,
+      "title":"モアイ",
+      "site":"Free3D",
+      "url":"https://free3d.com/3d-model/statue-v1--445854.html"
+    },
     { "filename": "face_mesh.png",
       "name":"face mesh",
       "obj":"canonical_face_model.obj"
