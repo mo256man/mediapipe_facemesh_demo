@@ -240,6 +240,7 @@ hr {
 
 .submenu-popup-grid {
   display: grid;
+  width: auto;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 8px;
 }
