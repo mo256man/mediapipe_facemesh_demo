@@ -297,10 +297,7 @@ export default function Mp({
       }
 
       if (smoothShadingRef.current) {
-        const pos = geometry.getAttribute("position");
-        const nor = geometry.getAttribute("normal");
-        const hasNormals = !!pos && !!nor && nor.count === pos.count;
-        if (!hasNormals) computeSmoothNormalsFromSrcIndex(geometry, srcIndexOfVertex);
+        computeSmoothNormalsFromSrcIndex(geometry, srcIndexOfVertex);
       }
 
       const baseMatm = new THREE.MeshStandardMaterial({

@@ -233,11 +233,16 @@ hr {
   padding: 12px;
   color: #fff;
   font-size: 14px;
+  width: 90%;             /* 画面幅に合わせて伸縮するように指定 */
+  min-width: 360px;       /* 元の設定（これ以上小さくならない） */
+  max-width: 1100px;      /* 画面が大きくても広がりすぎない上限（5列並ぶサイズ等） */
 }
 
 .submenu-popup-grid {
   display: grid;
-  grid-template-columns: repeat(3, 200px);
+  /* grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); */
+  grid-template-columns: repeat(auto-fit, 200px);
+  justify-content: start;
   gap: 8px;
 }
 
