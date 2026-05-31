@@ -1,4 +1,31 @@
-{"texture":
+{"facemesh texture":
+  [
+    { "filename": "face_mesh.png",
+      "name":"face mesh",
+      "obj":"canonical_face_model.obj"
+    },
+    { "filename": "anonymous.png",
+      "name":"ガイ・フォークス",
+      "obj":"canonical_face_model.obj"
+    },
+    { "filename": "ehonda.png",
+      "name":"エドモンド本田",
+      "obj":"canonical_face_model.obj"
+    },
+    { "filename": "akaza.png",
+      "name":"猗窩座",
+      "obj":"canonical_face_model.obj"
+    },
+    { "filename": "ataru.png",
+      "name":"キン肉マンソルジャー",
+      "obj":"canonical_face_model.obj"
+    },
+    { "filename": "demon.png",
+      "name":"デーモン閣下",
+      "obj":"canonical_face_model.obj"
+    }
+  ],
+  "other model":
   [
     { "filename": "miku.png",
       "name": "初音ミク",
@@ -27,33 +54,6 @@
       "scale": 2,
       "site":"blender",
       "url":"https://www.blender.org/"
-    },
-    { "filename": "hsv_gradient.png",
-      "name": "ユタ ティーポット",
-      "obj": "TEAPOT.obj",
-      "scale": 2,
-      "site":"Utah Graphics Lab",
-      "url":"https://graphics.cs.utah.edu/teapot/"
-    },
-    { "filename": "face_mesh.png",
-      "name":"face mesh",
-      "obj":"canonical_face_model.obj"
-    },
-    { "filename": "anonymous.png",
-      "name":"アノニマス",
-      "obj":"canonical_face_model.obj"
-    },
-    { "filename": "akaza.png",
-      "name":"猗窩座",
-      "obj":"canonical_face_model.obj"
-    },
-    { "filename": "ataru.png",
-      "name":"キン肉マンソルジャー",
-      "obj":"canonical_face_model.obj"
-    },
-    { "filename": "demon.png",
-      "name":"デーモン閣下",
-      "obj":"canonical_face_model.obj"
     }
   ],
   "iamge":

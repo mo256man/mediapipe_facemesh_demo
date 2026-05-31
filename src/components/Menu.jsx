@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function Menu({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, textureFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos, captureMode, setCaptureMode, selectedObjFile, setSelectedObjFile, selectedObjScale, setSelectedObjScale, smoothShading, setSmoothShading }) {
+export default function Menu({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, facemeshTextureFiles, otherModelFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos, captureMode, setCaptureMode, selectedObjFile, setSelectedObjFile, selectedObjScale, setSelectedObjScale, smoothShading, setSmoothShading }) {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [creditType, setCreditType] = useState('image');
@@ -272,9 +272,97 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
               <button onClick={(e) => { e.stopPropagation(); handleDownload(e); }} className="submenu-header-button">Download blueprint</button>
             </div>
           </div>
-          <div>prepared texture</div>
+          <div>facemesh texture</div>
           <div className="submenu-popup-grid">
-{textureFiles && textureFiles.map((item) => (
+{facemeshTextureFiles && facemeshTextureFiles.map((item) => (
+  <div
+    key={item.filename}
+    style={{ cursor: "pointer", display: "flex", flexDirection: "column" }}
+    onClick={(e) => {
+      e.stopPropagation();
+      setTextureImage(basePath + textureFolder + "/" + item.filename);
+
+      if (item.obj) {
+        setSelectedObjFile(item.obj);
+      }
+
+      setSelectedObjScale(item.scale ?? 1.0);
+      setTextureSubmenuOpen(false);
+    }}
+  >
+    <div
+      className={
+        textureImage && textureImage.includes
+          ? (textureImage.includes(item.filename)
+              ? "img_base selected"
+              : "img_base")
+          : "img_base"
+      }
+      style={{ marginBottom: "4px" }}
+    >
+      <img src={item.thumbnail} alt={item.name} />
+    </div>
+
+    <div
+      style={{
+        fontSize: "11px",
+        flex: 1,
+        display: "flex",
+        flexDirection: "column"
+      }}
+    >
+      <div
+        style={{
+          fontWeight: "bold",
+          marginBottom: "2px",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap"
+        }}
+      >
+        {item.name}
+      </div>
+
+      <div
+        style={{
+          fontSize: "10px",
+          color: "#aaa",
+          marginBottom: "2px",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap"
+        }}
+      >
+        {item.title}
+      </div>
+
+      {item.url && (
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            fontSize: "10px",
+            color: "#5ba3d0",
+            textDecoration: "none",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            marginBottom: "2px"
+          }}
+          onClick={(e) => { e.stopPropagation(); }}
+        >
+          {item.site}
+        </a>
+      )}
+    </div>
+  </div>
+))}
+          </div>
+          <hr />
+          <div>other model</div>
+          <div className="submenu-popup-grid">
+{otherModelFiles && otherModelFiles.map((item) => (
   <div
     key={item.filename}
     style={{ cursor: "pointer", display: "flex", flexDirection: "column" }}
