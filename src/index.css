@@ -228,7 +228,7 @@ hr {
   background: #222;
   width: fit-content;
   min-width: 260px;
-  max-width: min(90vw, 1264px);
+  max-width: 1264px; /* 6cols: 6×200+5×8+24 */
   max-height: calc(100vh - 100px);
   overflow-y: auto;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
@@ -239,6 +239,13 @@ hr {
   font-size: 14px;
   box-sizing: border-box;
 }
+
+/* max-width を列境界にスナップして余白をなくす */
+@media (max-width: 1404px) { .submenu-popup { max-width: 1056px; } } /* 5cols */
+@media (max-width: 1173px) { .submenu-popup { max-width:  848px; } } /* 4cols */
+@media (max-width:  942px) { .submenu-popup { max-width:  640px; } } /* 3cols */
+@media (max-width:  711px) { .submenu-popup { max-width:  432px; } } /* 2cols */
+@media (max-width:  480px) { .submenu-popup { max-width:  224px; min-width: 0; } } /* 1col */
 
 .submenu-popup-grid {
   display: flex;
@@ -251,12 +258,6 @@ hr {
   flex: 0 0 200px;
   max-width: 200px;
   min-width: 0;
-}
-
-@media (max-width: 480px) {
-  .submenu-popup {
-    min-width: 0;
-  }
 }
 
 .header-title {

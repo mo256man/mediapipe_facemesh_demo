@@ -138,7 +138,6 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
 
       {menuOpen && (
         <div className="menu-dropdown" onClick={(e) => e.stopPropagation()}>
-
           <div className="section-title">Texture</div>
             <button
               onClick={(e) => { 
@@ -274,22 +273,22 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
           </div>
           <div>facemesh texture</div>
           <div className="submenu-popup-grid">
-{facemeshTextureFiles && facemeshTextureFiles.map((item) => (
-  <div
-    key={item.filename}
-    style={{ cursor: "pointer", display: "flex", flexDirection: "column" }}
-    onClick={(e) => {
-      e.stopPropagation();
-      setTextureImage(basePath + textureFolder + "/" + item.filename);
+        {facemeshTextureFiles && facemeshTextureFiles.slice(1).map((item) => (
+          <div
+            key={item.filename}
+            style={{ cursor: "pointer", display: "flex", flexDirection: "column" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setTextureImage(basePath + textureFolder + "/" + item.filename);
 
-      if (item.obj) {
-        setSelectedObjFile(item.obj);
-      }
+              if (item.obj) {
+                setSelectedObjFile(item.obj);
+              }
 
-      setSelectedObjScale(item.scale ?? 1.0);
-      setTextureSubmenuOpen(false);
-    }}
-  >
+              setSelectedObjScale(item.scale ?? 1.0);
+              setTextureSubmenuOpen(false);
+            }}
+          >
     <div
       className={
         textureImage && textureImage.includes
