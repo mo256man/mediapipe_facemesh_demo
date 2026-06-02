@@ -467,3 +467,182 @@ hr {
 .hidden {
   display: none;
 }
+
+.link {
+  font-size: 10px;
+  color: #5ba3d0;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+/* ===== 新規クラス ===== */
+
+.menu-root {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+}
+
+.btn-content-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.source-item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.check-icon {
+  width: 16px;
+  display: inline-block;
+  text-align: center;
+}
+
+.hidden-inputs {
+  display: none;
+}
+
+.submenu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 8px;
+}
+
+.submenu-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.gallery-item {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.gallery-item > .img_base {
+  margin-bottom: 4px;
+}
+
+.gallery-item-info {
+  font-size: 11px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.gallery-item-name {
+  font-weight: bold;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gallery-item-title {
+  font-size: 10px;
+  color: #aaa;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gallery-item-link {
+  font-size: 10px;
+  color: #5ba3d0;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+.gallery-clickable {
+  cursor: pointer;
+}
+
+.gallery-item-wrapper {
+  position: relative;
+}
+
+.video-thumb {
+  position: relative;
+}
+
+.film-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.submenu-popup-grid.scrollable {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.mode-bar {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 101;
+}
+
+/* ===== 既存クラスに追記 ===== */
+
+.toggle-btn {
+  width: 50px;
+}
+
+.credit-item {
+  font-size: 12px;
+  padding: 8px 16px;
+  margin-top: 8px;
+}
+
+.credit-label {
+  margin-bottom: 4px;
+}
+
+.credit-text {
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.credit-link {
+  font-size: 10px;
+}
+
+.draw-gallery-delete {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 12px;
+}
+
+.mode-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
