@@ -198,8 +198,15 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
     setTextureSubmenuOpen(false);
   };
 
-  // ---- render ----
+  const facemeshOrigin = (
+    renderGalleryItem(facemeshTextureFiles[0], isSelected(textureImage, facemeshTextureFiles[0].filename), handleTextureSelect)
+  );
 
+  const facemeshDowinloadBtn = (
+    <div className="gallery-item">Download<br />Blueprint</div>
+  );
+
+  // ---- render ----
   return (
     <>
       <div ref={menuRef} className="menu-root">
@@ -250,6 +257,13 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
               { label: "Import Texture", onClick: handleImportTexture },
               { label: "Download blueprint", onClick: handleDownload },
             ])}
+            <div>facemesh texture original</div>
+            <div className="submenu-popup-grid">
+              {facemeshOrigin}
+              {facemeshDowinloadBtn}
+                {/* {renderGalleryItem(facemeshTextureFiles[0], isSelected(textureImage, facemeshTextureFiles[0].filename), handleTextureSelect)} */}
+            </div>
+            <hr />
             <div>facemesh texture</div>
             <div className="submenu-popup-grid">
               {facemeshTextureFiles && facemeshTextureFiles.slice(1).map((item) =>
