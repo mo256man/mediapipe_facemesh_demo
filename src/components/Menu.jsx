@@ -203,7 +203,14 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
   );
 
   const facemeshDowinloadBtn = (
-    <div className="gallery-item">Download<br />Blueprint</div>
+    <div className="gallery-item" onClick={(e) => { e.stopPropagation(); handleDownload(e); }}>
+      <div className="img_base">
+        <img src={basePath + 'face_mesh_2d.png'} alt="Download Blueprint" />
+      </div>
+      <div className="gallery-item-info">
+        <div className="gallery-item-name">Download<br />Blueprint</div>
+      </div>
+    </div>
   );
 
   // ---- render ----
@@ -266,14 +273,14 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
             <hr />
             <div>facemesh texture</div>
             <div className="submenu-popup-grid">
-              {facemeshTextureFiles && facemeshTextureFiles.slice(1).map((item) =>
+              {facemeshTextureFiles.slice(1).map((item) =>
                 renderGalleryItem(item, isSelected(textureImage, item.filename), handleTextureSelect)
               )}
             </div>
             <hr />
             <div>other model</div>
             <div className="submenu-popup-grid">
-              {otherModelFiles && otherModelFiles.map((item) =>
+              {otherModelFiles.map((item) =>
                 renderGalleryItem(item, isSelected(textureImage, item.filename), handleTextureSelect)
               )}
             </div>
@@ -304,7 +311,7 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
             ])}
             <hr />
             <div className="submenu-popup-grid">
-              {imageFiles && imageFiles.map((item) =>
+              {imageFiles.map((item) =>
                 renderGalleryItem(
                   item,
                   isSelected(imageSource, item.filename),
@@ -331,7 +338,7 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
             ])}
             <hr />
             <div className="submenu-popup-grid">
-              {videoFiles && videoFiles.map((item) =>
+              {videoFiles.map((item) =>
                 renderGalleryItem(
                   item,
                   isSelected(videoSource, item.filename),

@@ -19,6 +19,7 @@ function App() {
   const imageFiles = samplesData.iamge || [];
   const videoFiles = samplesData.video || [];
   
+  const [isDataReady, setIsDataReady] = useState(false);
   const [showTexure, setShowTexure] = useState(true);
   const [sourceType, setSourceType] = useState("none");
   const [textureImage, setTextureImage] = useState(() => 
@@ -32,7 +33,6 @@ function App() {
   const [importedTextures, setImportedTextures] = useState([]);
   const [importedImages, setImportedImages] = useState([]);
   const [importedVideos, setImportedVideos] = useState([]);
-  const [videoFilesWithThumbnails, setVideoFilesWithThumbnails] = useState([]);
   const [captureMode, setCaptureMode] = useState(false);
   const [capturedFrames, setCapturedFrames] = useState([]);
   const [selectedObjFile, setSelectedObjFile] = useState(
@@ -43,25 +43,58 @@ function App() {
   );
   const [smoothShading, setSmoothShading] = useState(false);
 
+  const [videoFilesWithThumbnails, setVideoFilesWithThumbnails] = useState([]);
+  const [imageFilesWithThumbnails, setImageFilesWithThumbnails] = useState([]);
+  const [facemeshTextureFilesWithThumbnails, setFacemeshTextureFilesWithThumbnails] = useState([]);
+  const [otherModelFilesWithThumbnails, setOtherModelFilesWithThumbnails] = useState([]);
+
   useEffect(() => {
-    const generateThumbnails = async () => {
-      const videosWithThumbnails = await Promise.all(
-        videoFiles.map(async (item) => {
-          const videoPath = basePath + videoFolder + "/" + item.filename;
-          const thumbnail = await generateVideoThumbnail(videoPath);
-          return {
-            ...item,
-            thumbnail: thumbnail
-          };
-        })
-      );
-      setVideoFilesWithThumbnails(videosWithThumbnails);
+    const initializeData = async () => {
+      try {
+        const [videos, images, facemeshTextures, otherModels] = await Promise.all([
+          Promise.all(
+            videoFiles.map(async (item) => {
+              const videoPath = basePath + videoFolder + "/" + item.filename;
+              const thumbnail = await generateVideoThumbnail(videoPath);
+              return { ...item, thumbnail };
+            })
+          ),
+          Promise.all(
+            imageFiles.map(async (item) => {
+              const imagePath = basePath + imageFolder + "/" + item.filename;
+              const thumbnail = await resizeImageOnCanvas(imagePath, 200, 160);
+              return { ...item, thumbnail };
+            })
+          ),
+          Promise.all(
+            facemeshTextureFiles.map(async (item) => {
+              const texturePath = basePath + textureFolder + "/" + item.filename;
+              const thumbnail = await resizeImageOnCanvas(texturePath, 200, 160);
+              return { ...item, thumbnail };
+            })
+          ),
+          Promise.all(
+            otherModelFiles.map(async (item) => {
+              const modelPath = basePath + textureFolder + "/" + item.filename;
+              const thumbnail = await resizeImageOnCanvas(modelPath, 200, 160);
+              return { ...item, thumbnail };
+            })
+          )
+        ]);
+
+        setVideoFilesWithThumbnails(videos);
+        setImageFilesWithThumbnails(images);
+        setFacemeshTextureFilesWithThumbnails(facemeshTextures);
+        setOtherModelFilesWithThumbnails(otherModels);
+        setIsDataReady(true);
+      } catch (error) {
+        console.error("Error initializing data:", error);
+        setIsDataReady(true);
+      }
     };
-    
-    if (videoFiles.length > 0) {
-      generateThumbnails();
-    }
-  }, [videoFiles, basePath, videoFolder]);
+
+    initializeData();
+  }, []);
 
   const resizeImageOnCanvas = (source, maxWidth, maxHeight) => {
     return new Promise((resolve) => {
@@ -129,69 +162,20 @@ function App() {
     });
   };
 
-  const [imageFilesWithThumbnails, setImageFilesWithThumbnails] = useState([]);
-  const [facemeshTextureFilesWithThumbnails, setFacemeshTextureFilesWithThumbnails] = useState([]);
-  const [otherModelFilesWithThumbnails, setOtherModelFilesWithThumbnails] = useState([]);
-
-  useEffect(() => {
-    const generateImageThumbnails = async () => {
-      const imagesWithThumbnails = await Promise.all(
-        imageFiles.map(async (item) => {
-          const imagePath = basePath + imageFolder + "/" + item.filename;
-          const thumbnail = await resizeImageOnCanvas(imagePath, 200, 160);
-          return {
-            ...item,
-            thumbnail: thumbnail
-          };
-        })
-      );
-      setImageFilesWithThumbnails(imagesWithThumbnails);
-    };
-    
-    if (imageFiles.length > 0) {
-      generateImageThumbnails();
-    }
-  }, [imageFiles, basePath, imageFolder]);
-
-  useEffect(() => {
-    const generateFacemeshTextureThumbnails = async () => {
-      const texturesWithThumbnails = await Promise.all(
-        facemeshTextureFiles.map(async (item) => {
-          const texturePath = basePath + textureFolder + "/" + item.filename;
-          const thumbnail = await resizeImageOnCanvas(texturePath, 200, 160);
-          return {
-            ...item,
-            thumbnail: thumbnail
-          };
-        })
-      );
-      setFacemeshTextureFilesWithThumbnails(texturesWithThumbnails);
-    };
-    
-    if (facemeshTextureFiles.length > 0) {
-      generateFacemeshTextureThumbnails();
-    }
-  }, [facemeshTextureFiles, basePath, textureFolder]);
-
-  useEffect(() => {
-    const generateOtherModelThumbnails = async () => {
-      const modelsWithThumbnails = await Promise.all(
-        otherModelFiles.map(async (item) => {
-          const modelPath = basePath + textureFolder + "/" + item.filename;
-          const thumbnail = await resizeImageOnCanvas(modelPath, 200, 160);
-          return {
-            ...item,
-            thumbnail: thumbnail
-          };
-        })
-      );
-      setOtherModelFilesWithThumbnails(modelsWithThumbnails);
-    };
-    
-    if (otherModelFiles.length > 0) {
-      generateOtherModelThumbnails();
-    }
-  }, [otherModelFiles, basePath, textureFolder]);
+  if (!isDataReady) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '24px',
+        color: '#666'
+      }}>
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <>
