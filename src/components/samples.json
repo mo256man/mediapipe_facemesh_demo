@@ -41,12 +41,26 @@
       "site":"printable_models（ローポリ化済）",
       "url":"https://free3d.com/3d-model/skull-v3--785914.html"
     },
-    { "filename": "statue_diffuse.jpg",
+    { "filename": "moai.jpg",
       "name": "モアイ",
       "obj": "moai.obj",
       "scale": 1.5,
       "site":"printable_models（ローポリ化済）",
       "url":"https://free3d.com/3d-model/statue-v1--445854.html"
+    },
+    { "filename": "buddha.jpg",
+      "name": "ブッダ",
+      "obj": "buddha.obj",
+      "scale": 2,
+      "site":"MarkNHewitt（ローポリ化済）",
+      "url":"https://sketchfab.com/3d-models/buddha-head-c6005e38f07948d29ea5b2581ce97fae"
+    },
+    { "filename": "tut.jpg",
+      "name": "ツタンカーメン",
+      "obj": "tut.obj",
+      "scale": 1,
+      "site":"",
+      "url":"https://sketchfab.com/3d-models/buddha-head-c6005e38f07948d29ea5b2581ce97fae"
     },
     { "filename": "monkey.png",
       "name": "Blenderモンキー",

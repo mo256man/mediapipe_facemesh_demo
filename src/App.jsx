@@ -54,6 +54,7 @@ function App() {
         const [videos, images, facemeshTextures, otherModels] = await Promise.all([
           Promise.all(
             videoFiles.map(async (item) => {
+              console.log("Processing video:", item.filename);
               const videoPath = basePath + videoFolder + "/" + item.filename;
               const thumbnail = await generateVideoThumbnail(videoPath);
               return { ...item, thumbnail };
@@ -61,6 +62,7 @@ function App() {
           ),
           Promise.all(
             imageFiles.map(async (item) => {
+              console.log("Processing image:", item.filename);
               const imagePath = basePath + imageFolder + "/" + item.filename;
               const thumbnail = await resizeImageOnCanvas(imagePath, 200, 160);
               return { ...item, thumbnail };
@@ -68,6 +70,7 @@ function App() {
           ),
           Promise.all(
             facemeshTextureFiles.map(async (item) => {
+              console.log("Processing facemesh texture:", item.filename);
               const texturePath = basePath + textureFolder + "/" + item.filename;
               const thumbnail = await resizeImageOnCanvas(texturePath, 200, 160);
               return { ...item, thumbnail };
@@ -75,6 +78,7 @@ function App() {
           ),
           Promise.all(
             otherModelFiles.map(async (item) => {
+              console.log("Processing other model:", item.filename);
               const modelPath = basePath + textureFolder + "/" + item.filename;
               const thumbnail = await resizeImageOnCanvas(modelPath, 200, 160);
               return { ...item, thumbnail };
