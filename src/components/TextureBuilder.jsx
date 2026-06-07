@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 
-const TEXTURE_SIZE = 1024;
+const TEXTURE_SIZE = 1000;
 
 function parseOBJTriangles(text) {
   const vs = [];
