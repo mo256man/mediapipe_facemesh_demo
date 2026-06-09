@@ -55,12 +55,12 @@
       "site":"MarkNHewitt（ローポリ化済）",
       "url":"https://sketchfab.com/3d-models/buddha-head-c6005e38f07948d29ea5b2581ce97fae"
     },
-    { "filename": "tut.jpg",
+    { "filename": "tut.png",
       "name": "ツタンカーメン",
       "obj": "tut.obj",
-      "scale": 1,
-      "site":"",
-      "url":"https://sketchfab.com/3d-models/buddha-head-c6005e38f07948d29ea5b2581ce97fae"
+      "scale": 3.0,
+      "site":"Roberto Domínguez（ローポリ化済）",
+      "url":"https://sketchfab.com/3d-models/tutankhamun-mask-hunyuan-f79ba82300cc4b9b9637d94f8959e970"
     },
     { "filename": "monkey.png",
       "name": "Blenderモンキー",

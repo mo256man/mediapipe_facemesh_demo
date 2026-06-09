@@ -7,6 +7,7 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
   const [textureSubmenuOpen, setTextureSubmenuOpen] = useState(false);
   const [imageSubmenuOpen, setImageSubmenuOpen] = useState(false);
   const [videoSubmenuOpen, setVideoSubmenuOpen] = useState(false);
+  const [galleryItemPopup, setGalleryItemPopup] = useState({ isOpen: false, item: null });
   const importTextureRef = useRef(null);
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
@@ -132,12 +133,14 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
       </div>
       <div className="gallery-item-info">
         <div className="gallery-item-name">{item.name}</div>
-        <div className="gallery-item-title">{item.title}</div>
-        {item.url && (
-          <a href={item.url} target="_blank" rel="noopener noreferrer" className="gallery-item-link" onClick={(e) => e.stopPropagation()}>
-            {item.site}
-          </a>
-        )}
+        {item.title || item.url ? (
+          <button 
+            className="gallery-item-info-btn" 
+            onClick={(e) => { e.stopPropagation(); setGalleryItemPopup({ isOpen: true, item }); }}
+          >
+            Info
+          </button>
+        ) : null}
       </div>
     </div>
   );
@@ -368,6 +371,45 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
           ✏️ Edit Texture
         </button>
       </div>
+
+      {/* Gallery Item Info Popup */}
+      {galleryItemPopup.isOpen && galleryItemPopup.item && (
+        <div 
+          className="gallery-item-popup-overlay" 
+          onClick={(e) => { e.stopPropagation(); setGalleryItemPopup({ isOpen: false, item: null }); }}
+        >
+          <div 
+            className="gallery-item-popup" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              className="gallery-item-popup-close" 
+              onClick={(e) => { e.stopPropagation(); setGalleryItemPopup({ isOpen: false, item: null }); }}
+            >
+              ✕
+            </button>
+            {galleryItemPopup.item.thumbnail && (
+              <div className="gallery-item-popup-image-container">
+                <img src={galleryItemPopup.item.thumbnail} alt={galleryItemPopup.item.name} className="gallery-item-popup-image" />
+              </div>
+            )}
+            {galleryItemPopup.item.title && (
+              <div className="gallery-item-popup-title">{galleryItemPopup.item.title}</div>
+            )}
+            {galleryItemPopup.item.url && (
+              <a 
+                href={galleryItemPopup.item.url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="gallery-item-popup-link"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {galleryItemPopup.item.site || galleryItemPopup.item.url}
+              </a>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }

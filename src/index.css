@@ -646,3 +646,99 @@ hr {
   font-size: 14px;
   cursor: pointer;
 }
+
+/* Gallery Item Info Button and Popup */
+.gallery-item-info-btn {
+  padding: 4px 8px;
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.gallery-item-info-btn:hover {
+  background: #106ebe;
+}
+
+.gallery-item-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.gallery-item-popup {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  position: relative;
+  color: #fff;
+}
+
+.gallery-item-popup-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: #aaa;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.gallery-item-popup-close:hover {
+  color: #fff;
+}
+
+.gallery-item-popup-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  word-wrap: break-word;
+}
+
+.gallery-item-popup-link {
+  display: inline-block;
+  color: #5ba3d0;
+  text-decoration: none;
+  font-size: 13px;
+  word-wrap: break-word;
+  transition: color 0.2s ease;
+}
+
+.gallery-item-popup-link:hover {
+  color: #7bc4f0;
+  text-decoration: underline;
+}
+
+.gallery-item-popup-image-container {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.gallery-item-popup-image {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 4px;
+  display: inline-block;
+}
