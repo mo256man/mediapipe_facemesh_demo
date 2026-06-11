@@ -228,9 +228,10 @@ hr {
   background: #222;
   width: fit-content;
   min-width: 260px;
-  max-width: 1264px; /* 6cols: 6×200+5×8+24 */
+  max-width: 656px; /* 3cols: 3×200+2×8+24(padding)+16(scrollbar-gutter) */
   max-height: calc(100vh - 100px);
   overflow-y: auto;
+  scrollbar-gutter: stable;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   border-radius: 6px;
   z-index: 2000;
@@ -241,8 +242,8 @@ hr {
 }
 
 /* max-width を列境界にスナップして余白をなくす */
-@media (max-width: 1404px) { .submenu-popup { max-width: 1056px; } } /* 5cols */
-@media (max-width: 1173px) { .submenu-popup { max-width:  848px; } } /* 4cols */
+/* @media (max-width: 1404px) { .submenu-popup { max-width: 1056px; } } 5cols */
+/* @media (max-width: 1173px) { .submenu-popup { max-width:  848px; } } 4cols */
 @media (max-width:  942px) { .submenu-popup { max-width:  640px; } } /* 3cols */
 @media (max-width:  711px) { .submenu-popup { max-width:  432px; } } /* 2cols */
 @media (max-width:  480px) { .submenu-popup { max-width:  224px; min-width: 0; } } /* 1col */
@@ -593,7 +594,7 @@ hr {
 
 .submenu-popup-grid.scrollable {
   max-height: 200px;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 .mode-bar {
