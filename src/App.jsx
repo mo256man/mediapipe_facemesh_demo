@@ -166,20 +166,16 @@ function App() {
     });
   };
 
+  const loadingScreen = (
+    <div className="loadingScreen">
+      <div className="loadingSpinner"></div>
+    </div>
+  );
+
   if (!isDataReady) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        fontSize: '24px',
-        color: '#666'
-      }}>
-        Loading...
-      </div>
-    );
+    return loadingScreen;
   }
+
 
   return (
     <>
