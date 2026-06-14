@@ -4,7 +4,7 @@ import FaceMeshViewer from './components/FaceMeshViewer'
 import Draw from './components/Draw'
 import FaceCapture from './components/FaceCapture'
 import TextureBuilder from './components/TextureBuilder'
-import samplesData from './components/samples.json'
+import samplesData from './components/files.json'
 
 function App() {
   const basePath = import.meta.env.BASE_URL;
