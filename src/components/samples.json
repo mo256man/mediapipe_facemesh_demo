@@ -1,6 +1,6 @@
 {"facemesh texture":
   [
-    { "filename": "face_mesh.png",
+    { "filename": "fuv_layout_canonical_face_model.png",
       "name":"face mesh",
       "obj":"canonical_face_model.obj"
     },

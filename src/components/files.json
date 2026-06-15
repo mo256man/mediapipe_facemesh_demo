@@ -1,28 +1,44 @@
-{"facemesh texture":
+{"facemesh original":
   [
     { "filename": "face_mesh.png",
       "name":"face mesh",
-      "obj":"canonical_face_model.obj"
+      "obj":"canonical_face_model.obj",
+      "site": "face_mesh_connections",
+      "url": "https://github.com/google-ai-edge/mediapipe/blob/master/mediapipe/python/solutions/face_mesh_connections.py"
     },
+    { "filename": "uv_layout_canonical_face_model.png",
+      "name":"face mesh",
+      "obj":"canonical_face_model.obj",
+      "site": "canonical_face_model",
+      "url": "https://github.com/google-ai-edge/mediapipe/blob/master/mediapipe/modules/face_geometry/data/canonical_face_model.obj"
+    }
+  ],
+  "facemesh texture": 
+  [
     { "filename": "anonymous.png",
       "name":"ガイ・フォークス",
-      "obj":"canonical_face_model.obj"
+      "obj":"canonical_face_model.obj",
+      "info":"ガイ・フォークス"
     },
     { "filename": "ehonda.png",
       "name":"エドモンド本田",
-      "obj":"canonical_face_model.obj"
+      "obj":"canonical_face_model.obj",
+      "info":"ストリートファイターの登場人物"
     },
     { "filename": "akaza.png",
       "name":"猗窩座",
-      "obj":"canonical_face_model.obj"
+      "obj":"canonical_face_model.obj",
+      "info":"鬼滅の刃の登場キャラクター"
     },
     { "filename": "ataru.png",
       "name":"キン肉マンソルジャー",
-      "obj":"canonical_face_model.obj"
+      "obj":"canonical_face_model.obj",
+      "info":"キン肉マンの登場キャラクター"
     },
     { "filename": "demon.png",
       "name":"デーモン閣下",
-      "obj":"canonical_face_model.obj"
+      "obj":"canonical_face_model.obj",
+      "info":"ロックバンド『デーモン閣下』のボーカル"
     }
   ],
   "other model":
@@ -31,6 +47,7 @@
       "name": "初音ミク",
       "obj": "miku.obj",
       "scale": 8,
+      "info": "初音ミク",
       "site":"Yume Kurohime（ローポリ化済）",
       "url":"https://sketchfab.com/3d-models/official-hatsune-miku-model-rigless-c8f1e12bfa1b4d009e63a4e1194f2cce"
     },

@@ -13,9 +13,10 @@ function App() {
   const thumbnailFolder = "thumbnail";
   const textureFolder = "texture";
   
+  const facemeshOriginalFiles = samplesData["facemesh original"] || [];
   const facemeshTextureFiles = samplesData["facemesh texture"] || [];
   const otherModelFiles = samplesData["other model"] || [];
-  const textureFiles = [...facemeshTextureFiles, ...otherModelFiles];
+  const textureFiles = [...facemeshOriginalFiles, ...facemeshTextureFiles, ...otherModelFiles];
   const imageFiles = samplesData.iamge || [];
   const videoFiles = samplesData.video || [];
   
@@ -45,13 +46,14 @@ function App() {
 
   const [videoFilesWithThumbnails, setVideoFilesWithThumbnails] = useState([]);
   const [imageFilesWithThumbnails, setImageFilesWithThumbnails] = useState([]);
+  const [facemeshOriginalFilesWithThumbnails, setFacemeshOriginalFilesWithThumbnails] = useState([]);
   const [facemeshTextureFilesWithThumbnails, setFacemeshTextureFilesWithThumbnails] = useState([]);
   const [otherModelFilesWithThumbnails, setOtherModelFilesWithThumbnails] = useState([]);
 
   useEffect(() => {
     const initializeData = async () => {
       try {
-        const [videos, images, facemeshTextures, otherModels] = await Promise.all([
+        const [videos, images, facemeshOriginals, facemeshTextures, otherModels] = await Promise.all([
           Promise.all(
             videoFiles.map(async (item) => {
               console.log("Processing video:", item.filename);
@@ -65,6 +67,14 @@ function App() {
               console.log("Processing image:", item.filename);
               const imagePath = basePath + imageFolder + "/" + item.filename;
               const thumbnail = await resizeImageOnCanvas(imagePath, 200, 160);
+              return { ...item, thumbnail };
+            })
+          ),
+          Promise.all(
+            facemeshOriginalFiles.map(async (item) => {
+              console.log("Processing facemesh original:", item.filename);
+              const texturePath = basePath + textureFolder + "/" + item.filename;
+              const thumbnail = await resizeImageOnCanvas(texturePath, 200, 160);
               return { ...item, thumbnail };
             })
           ),
@@ -88,6 +98,7 @@ function App() {
 
         setVideoFilesWithThumbnails(videos);
         setImageFilesWithThumbnails(images);
+        setFacemeshOriginalFilesWithThumbnails(facemeshOriginals);
         setFacemeshTextureFilesWithThumbnails(facemeshTextures);
         setOtherModelFilesWithThumbnails(otherModels);
         setIsDataReady(true);
@@ -178,7 +189,7 @@ function App() {
 
   return (
     <>
-      <Menu showTexure={showTexure} setShowTexure={setShowTexure} sourceType={sourceType} setSourceType={setSourceType} textureImage={textureImage} setTextureImage={setTextureImage} imageSource={imageSource} setImageSource={setImageSource} videoSource={videoSource} setVideoSource={setVideoSource} facemeshTextureFiles={facemeshTextureFilesWithThumbnails} otherModelFiles={otherModelFilesWithThumbnails} textureFolder={textureFolder} imageFiles={imageFilesWithThumbnails} imageFolder={imageFolder} videoFiles={videoFilesWithThumbnails} videoFolder={videoFolder} thumbnailFolder={thumbnailFolder} basePath={basePath} editMode={editMode} setEditMode={setEditMode} savedImages={savedImages} setSavedImages={setSavedImages} importedTextures={importedTextures} setImportedTextures={setImportedTextures} importedImages={importedImages} setImportedImages={setImportedImages} importedVideos={importedVideos} setImportedVideos={setImportedVideos} captureMode={captureMode} setCaptureMode={setCaptureMode} selectedObjFile={selectedObjFile} setSelectedObjFile={setSelectedObjFile} selectedObjScale={selectedObjScale} setSelectedObjScale={setSelectedObjScale} smoothShading={smoothShading} setSmoothShading={setSmoothShading} />
+      <Menu showTexure={showTexure} setShowTexure={setShowTexure} sourceType={sourceType} setSourceType={setSourceType} textureImage={textureImage} setTextureImage={setTextureImage} imageSource={imageSource} setImageSource={setImageSource} videoSource={videoSource} setVideoSource={setVideoSource} facemeshOriginalFiles={facemeshOriginalFilesWithThumbnails} facemeshTextureFiles={facemeshTextureFilesWithThumbnails} otherModelFiles={otherModelFilesWithThumbnails} textureFolder={textureFolder} imageFiles={imageFilesWithThumbnails} imageFolder={imageFolder} videoFiles={videoFilesWithThumbnails} videoFolder={videoFolder} thumbnailFolder={thumbnailFolder} basePath={basePath} editMode={editMode} setEditMode={setEditMode} savedImages={savedImages} setSavedImages={setSavedImages} importedTextures={importedTextures} setImportedTextures={setImportedTextures} importedImages={importedImages} setImportedImages={setImportedImages} importedVideos={importedVideos} setImportedVideos={setImportedVideos} captureMode={captureMode} setCaptureMode={setCaptureMode} selectedObjFile={selectedObjFile} setSelectedObjFile={setSelectedObjFile} selectedObjScale={selectedObjScale} setSelectedObjScale={setSelectedObjScale} smoothShading={smoothShading} setSmoothShading={setSmoothShading} />
       <div className="main" style={{ display: "flex", flexDirection: "row" }}>
         {!editMode && !captureMode && (
           <div style={{ flex: 1, minWidth: 0 }}>

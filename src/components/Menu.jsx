@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function Menu({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, facemeshTextureFiles, otherModelFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos, captureMode, setCaptureMode, selectedObjFile, setSelectedObjFile, selectedObjScale, setSelectedObjScale, smoothShading, setSmoothShading }) {
+export default function Menu({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, facemeshOriginalFiles, facemeshTextureFiles, otherModelFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos, captureMode, setCaptureMode, selectedObjFile, setSelectedObjFile, selectedObjScale, setSelectedObjScale, smoothShading, setSmoothShading }) {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [creditType, setCreditType] = useState('image');
@@ -133,7 +133,7 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
       </div>
       <div className="gallery-item-info">
         <div className="gallery-item-name">{item.name}</div>
-        {item.title || item.url ? (
+        {item.title || item.url || item.site || item.info ? (
           <button 
             className="gallery-item-info-btn" 
             onClick={(e) => { e.stopPropagation(); setGalleryItemPopup({ isOpen: true, item }); }}
@@ -201,9 +201,11 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
     setTextureSubmenuOpen(false);
   };
 
-  const facemeshOrigin = (
-    renderGalleryItem(facemeshTextureFiles[0], isSelected(textureImage, facemeshTextureFiles[0].filename), handleTextureSelect)
-  );
+  const facemeshOrigin = facemeshOriginalFiles && facemeshOriginalFiles.length > 0
+    ? facemeshOriginalFiles.map((item) =>
+        renderGalleryItem(item, isSelected(textureImage, item.filename), handleTextureSelect)
+      )
+    : null;
 
   const facemeshDowinloadBtn = (
     <div className="gallery-item" onClick={(e) => { e.stopPropagation(); handleDownload(e); }}>
@@ -269,14 +271,17 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
             ])}
             <div>facemesh texture original</div>
             <div className="submenu-popup-grid">
-              {facemeshOrigin}
-              {facemeshDowinloadBtn}
-                {/* {renderGalleryItem(facemeshTextureFiles[0], isSelected(textureImage, facemeshTextureFiles[0].filename), handleTextureSelect)} */}
+              {facemeshOrigin && facemeshOrigin.length > 0 ? (
+                <>
+                  {facemeshOrigin}
+                  {facemeshDowinloadBtn}
+                </>
+              ) : null}
             </div>
             <hr />
             <div>facemesh texture</div>
             <div className="submenu-popup-grid">
-              {facemeshTextureFiles.slice(1).map((item) =>
+              {facemeshTextureFiles.map((item) =>
                 renderGalleryItem(item, isSelected(textureImage, item.filename), handleTextureSelect)
               )}
             </div>
@@ -395,6 +400,9 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
             )}
             {galleryItemPopup.item.title && (
               <div className="gallery-item-popup-title">{galleryItemPopup.item.title}</div>
+            )}
+            {galleryItemPopup.item.info && (
+              <div className="gallery-item-popup-info">{galleryItemPopup.item.info}</div>
             )}
             {galleryItemPopup.item.url && (
               <a 

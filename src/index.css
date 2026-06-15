@@ -718,6 +718,14 @@ hr {
   word-wrap: break-word;
 }
 
+.gallery-item-popup-info {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 12px;
+  word-wrap: break-word;
+  line-height: 1.5;
+}
+
 .gallery-item-popup-link {
   display: inline-block;
   color: #5ba3d0;
