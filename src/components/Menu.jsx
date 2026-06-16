@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function Menu({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, facemeshOriginalFiles, facemeshTextureFiles, otherModelFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos, captureMode, setCaptureMode, selectedObjFile, setSelectedObjFile, selectedObjScale, setSelectedObjScale, smoothShading, setSmoothShading }) {
+export default function Menu({ showTexure, setShowTexure, sourceType, setSourceType, textureImage, setTextureImage, imageSource, setImageSource, videoSource, setVideoSource, facemeshOriginalFiles, facemeshTextureFiles, otherModelFiles, textureFolder, imageFiles, imageFolder, videoFiles, videoFolder, thumbnailFolder, basePath: basePath_prop, editMode, setEditMode, savedImages, setSavedImages, importedTextures, setImportedTextures, importedImages, setImportedImages, importedVideos, setImportedVideos, captureMode, setCaptureMode, selectedObjFile, setSelectedObjFile, selectedObjScale, setSelectedObjScale, smoothShading, setSmoothShading, onReloadFiles }) {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [creditType, setCreditType] = useState('image');
@@ -222,7 +222,7 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
   return (
     <>
       <div ref={menuRef} className="menu-root">
-        <div className="menu-trigger" onClick={(e) => { e.stopPropagation(); setMenuOpen((prev) => !prev); }}>
+        <div className="menu-trigger" onClick={(e) => { e.stopPropagation(); setMenuOpen((prev) => !prev); if (onReloadFiles) onReloadFiles(); }}>
           ☰ Menu
         </div>
 
@@ -383,21 +383,14 @@ export default function Menu({ showTexure, setShowTexure, sourceType, setSourceT
           className="gallery-item-popup-overlay" 
           onClick={(e) => { e.stopPropagation(); setGalleryItemPopup({ isOpen: false, item: null }); }}
         >
-          <div 
-            className="gallery-item-popup" 
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button 
-              className="gallery-item-popup-close" 
-              onClick={(e) => { e.stopPropagation(); setGalleryItemPopup({ isOpen: false, item: null }); }}
-            >
+          <div className="gallery-item-popup" onClick={(e) => e.stopPropagation()}>
+            <button className="gallery-item-popup-close" onClick={(e) => { e.stopPropagation(); setGalleryItemPopup({ isOpen: false, item: null }); }}>
               ✕
             </button>
-            {galleryItemPopup.item.thumbnail && (
-              <div className="gallery-item-popup-image-container">
-                <img src={galleryItemPopup.item.thumbnail} alt={galleryItemPopup.item.name} className="gallery-item-popup-image" />
-              </div>
-            )}
+            <div className="center">
+              <img src={galleryItemPopup.item.thumbnail} alt={galleryItemPopup.item.name} className="gallery-item-popup-image" />
+            </div>
+            
             {galleryItemPopup.item.title && (
               <div className="gallery-item-popup-title">{galleryItemPopup.item.title}</div>
             )}

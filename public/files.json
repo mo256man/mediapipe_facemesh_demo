@@ -16,10 +16,9 @@
   "facemesh texture": 
   [
     { "filename": "anonymous.png",
-      "name":"ガイ・フォークス・マスク",
+      "name":"ガイ・フォークス",
       "obj":"canonical_face_model.obj",
-      "title":"ガイ・フォークス・マスク",
-      "info": "匿名の抗議活動に使われる"
+      "info":"ガイ・フォークス"
     },
     { "filename": "ehonda.png",
       "name":"エドモンド本田",
@@ -48,9 +47,9 @@
       "name": "初音ミク",
       "obj": "miku.obj",
       "scale": 8,
-      "title": "初音ミク（by Yume Kurohime）",
-      "info": "ローポリ化済、テクスチャ変更済",
-      "site":"sketchfab.com",
+      "title": "初音ミク",
+      "info": "Official Hatsune Miku Model (Rigless)",
+      "site":"Yume Kurohime（ローポリ化済）",
       "url":"https://sketchfab.com/3d-models/official-hatsune-miku-model-rigless-c8f1e12bfa1b4d009e63a4e1194f2cce"
     },
     { "filename": "Skull.jpg",
