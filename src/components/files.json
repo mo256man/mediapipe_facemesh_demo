@@ -24,12 +24,12 @@
     { "filename": "ehonda.png",
       "name":"エドモンド本田",
       "obj":"canonical_face_model.obj",
-      "info":"ストリートファイターの登場人物"
+      "info":"朝の稽古より楽勝でごわす！"
     },
     { "filename": "akaza.png",
       "name":"猗窩座",
       "obj":"canonical_face_model.obj",
-      "info":"鬼滅の刃の登場キャラクター"
+      "info":"お前も鬼にならないか？"
     },
     { "filename": "ataru.png",
       "name":"キン肉マンソルジャー",
