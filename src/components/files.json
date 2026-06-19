@@ -24,22 +24,34 @@
     { "filename": "ehonda.png",
       "name":"エドモンド本田",
       "obj":"canonical_face_model.obj",
-      "info":"朝の稽古より楽勝でごわす！"
+      "title": "エドモンド本田",
+      "info":"土俵入りにごわす！",
+      "site": "ストリートファイター6",
+      "url": "https://www.streetfighter.com/6/ja-jp/character/ehonda"
     },
     { "filename": "akaza.png",
       "name":"猗窩座",
       "obj":"canonical_face_model.obj",
-      "info":"お前も鬼にならないか？"
+      "title": "猗窩座",
+      "info":"お前も鬼にならないか？",
+      "site": "劇場版「鬼滅の刃」無限城編 第一章 猗窩座再来",
+      "url": "https://kimetsu.com/anime/mugenjyohen_movie/character/"
     },
     { "filename": "ataru.png",
-      "name":"キン肉マンソルジャー",
+      "name":"キン肉マン ソルジャー",
       "obj":"canonical_face_model.obj",
-      "info":"キン肉マンの登場キャラクター"
+      "info":"男というものはあまりしゃべるものではない！",
+      "title": "キン肉マン ソルジャー",
+      "site": "キン肉マン公式サイト",
+      "url": "https://wpb.shueisha.co.jp/kinnikuman/?character=kinnikuman_sl"
     },
     { "filename": "demon.png",
       "name":"デーモン閣下",
       "obj":"canonical_face_model.obj",
-      "info":"ロックバンド『デーモン閣下』のボーカル"
+      "title": "デーモン閣下", 
+      "info": "おまえも蝋人形にしてやろうか！！",
+      "site": "H.E.DEMON KAKKA'S",
+      "url": "https://demon-kakka.jp/biography/bio.php"
     }
   ],
   "other model":
