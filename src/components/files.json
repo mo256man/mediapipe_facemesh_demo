@@ -3,7 +3,9 @@
     { "filename": "face_mesh.png",
       "name":"face mesh",
       "obj":"canonical_face_model.obj",
-      "site": "face_mesh_connections",
+      "title": "face_mesh_connections",
+      "info": "顔の各部位や輪郭は定数として定義されており、Pythonから呼び出すことができる",
+      "site": "github/略/mediapipe/略/face_mesh_connections.py",
       "url": "https://github.com/google-ai-edge/mediapipe/blob/master/mediapipe/python/solutions/face_mesh_connections.py"
     },
     { "filename": "uv_layout_canonical_face_model.png",
