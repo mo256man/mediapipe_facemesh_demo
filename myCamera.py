@@ -4,6 +4,7 @@ import queue
 import threading
 import time
 import platform
+import traceback
 from urllib.parse import quote
 from datetime import datetime
 # from myDeepFace import analyze_face
@@ -220,6 +221,7 @@ class Camera:
           self.current_frame = frame.copy()
       except Exception as e:
         print(f"[Camera] Error in capture loop: {e}", flush=True)
+        traceback.print_exc()
         time.sleep(0.1)
 
   def _deepface_loop(self):
@@ -297,10 +299,24 @@ class Camera:
 
     # 固定周期で録画フレームを書き込む
     if self.config.is_recording and self.config.record_writer and self.config.next_write_time is not None:
-      while now >= self.config.next_write_time:
+      # 防御: tick不正なら暴走回避
+      if self.config.tick is None or self.config.tick <= 0:
+        print(f"[Recording] invalid tick: {self.config.tick}", flush=True)
+        return
+
+      # 防御: 1ループの最大書き込み回数を制限
+      max_writes_per_frame = 5
+      writes = 0
+
+      while now >= self.config.next_write_time and writes < max_writes_per_frame:
         out = cv2.resize(frame, (self.config.record_out_w, self.config.record_out_h))
         self.config.record_writer.write(out)
         self.config.next_write_time += self.config.tick
+        writes += 1
+
+      if writes == max_writes_per_frame and now >= self.config.next_write_time:
+        # 遅延が大きいときは追いつきループを打ち切って現在時刻へ同期
+        self.config.next_write_time = now + self.config.tick
 
   def _start_recording(self):
     """録画開始"""
