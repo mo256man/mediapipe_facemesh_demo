@@ -4,7 +4,6 @@ import queue
 import threading
 import time
 import platform
-import traceback
 from urllib.parse import quote
 from datetime import datetime
 # from myDeepFace import analyze_face
@@ -25,8 +24,8 @@ pwd_enc = quote(password, safe="")
 if platform.system() == "Windows":
     local_backend = cv2.CAP_DSHOW
 else:
-    # Ubuntu/Linux は V4L2 を優先（または backend=None で自動）
-    local_backend = cv2.CAP_V4L2
+    # Ubuntu/Linux は自動選択（V4L2でブロッキングする場合があるため）
+    local_backend = None
     
 CAMERAS = [
   {
@@ -110,17 +109,21 @@ class Camera:
     self.width = CAMERAS[idx]["width"]
     self.height = CAMERAS[idx]["height"]
     try:
+      print(f"[Camera] Initializing camera {camera_id}, source: {self.source}, backend: {self.backend}", flush=True)
       if self.backend is not None:
         self.cap = cv2.VideoCapture(self.source, self.backend)
       else:
         self.cap = cv2.VideoCapture(self.source)
       if not self.cap.isOpened():
         raise Exception("Failed to open camera")
+      print(f"[Camera] Camera opened successfully", flush=True)
       self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
       self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+      print(f"[Camera] Resolution set to {self.width}x{self.height}", flush=True)
       self.start()
+      print(f"[Camera] Capture threads started", flush=True)
     except Exception as e:
-      print(f"Error initializing camera {camera_id}: {e}")
+      print(f"[Camera] Error initializing camera {camera_id}: {e}", flush=True)
       self.cap = None
       raise
 
@@ -221,7 +224,6 @@ class Camera:
           self.current_frame = frame.copy()
       except Exception as e:
         print(f"[Camera] Error in capture loop: {e}", flush=True)
-        traceback.print_exc()
         time.sleep(0.1)
 
   def _deepface_loop(self):
@@ -246,10 +248,15 @@ class Camera:
       time.sleep(0.01)
       return False, None
 
-    ret, frame = self.cap.read()
-    if not ret:
-      # 一時的な読み込み失敗。カメラ接続は維持したまま次のループで再試行する
-      print("[Camera] cap.read() failed (ret=False)", flush=True)
+    try:
+      ret, frame = self.cap.read()
+      if not ret:
+        # 一時的な読み込み失敗。カメラ接続は維持したまま次のループで再試行する
+        print("[Camera] cap.read() failed (ret=False)", flush=True)
+        time.sleep(0.01)
+        return False, None
+    except Exception as e:
+      print(f"[Camera] Exception in cap.read(): {e}", flush=True)
       time.sleep(0.01)
       return False, None
 
@@ -299,24 +306,10 @@ class Camera:
 
     # 固定周期で録画フレームを書き込む
     if self.config.is_recording and self.config.record_writer and self.config.next_write_time is not None:
-      # 防御: tick不正なら暴走回避
-      if self.config.tick is None or self.config.tick <= 0:
-        print(f"[Recording] invalid tick: {self.config.tick}", flush=True)
-        return
-
-      # 防御: 1ループの最大書き込み回数を制限
-      max_writes_per_frame = 5
-      writes = 0
-
-      while now >= self.config.next_write_time and writes < max_writes_per_frame:
+      while now >= self.config.next_write_time:
         out = cv2.resize(frame, (self.config.record_out_w, self.config.record_out_h))
         self.config.record_writer.write(out)
         self.config.next_write_time += self.config.tick
-        writes += 1
-
-      if writes == max_writes_per_frame and now >= self.config.next_write_time:
-        # 遅延が大きいときは追いつきループを打ち切って現在時刻へ同期
-        self.config.next_write_time = now + self.config.tick
 
   def _start_recording(self):
     """録画開始"""

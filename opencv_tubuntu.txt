@@ -11,3 +11,8 @@ sudo apt install -y ffmpeg v4l-utils \
 
 ffplay -rtsp_transport tcp "rtsp://root:password@192.168.4.245/axis-media/media.amp"
 
+sudo apt update
+sudo apt install -y v4l-utils libv4l-dev
+sudo apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+sudo apt install -y gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav
+sudo apt install -y libx264-dev
