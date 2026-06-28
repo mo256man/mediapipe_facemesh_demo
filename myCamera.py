@@ -84,6 +84,7 @@ class Camera:
     self.current_frame = None
   
   def initialize(self, camera_id):
+    print(f"[Camera] === initialize() called with camera_id={camera_id} ===", flush=True)
     self.stop()                       # 既存スレッドを停止
     self.camera_id = camera_id
     
@@ -99,6 +100,7 @@ class Camera:
     
     # 0番はカメラ無し
     if camera_id == 0:
+      print(f"[Camera] Camera 0 selected (no camera)", flush=True)
       return
   
     # 1番以上はカメラを設定
@@ -128,7 +130,9 @@ class Camera:
       raise
 
   def start(self):
+    print(f"[Camera] start() called", flush=True)
     if self.cap is None or not self.cap.isOpened():
+      print(f"[Camera] start() aborted - cap not ready", flush=True)
       return
     self.stop_event.clear()
     # キューをリセット
@@ -137,11 +141,15 @@ class Camera:
         self.deepface_queue.get_nowait()
       except queue.Empty:
         break
+    print(f"[Camera] Starting capture thread...", flush=True)
     self.capture_thread = threading.Thread(target=self._capture_loop, daemon=True)
     self.capture_thread.start()
+    print(f"[Camera] Capture thread started", flush=True)
     if self.is_ai_available:
+      print(f"[Camera] Starting deepface thread...", flush=True)
       self.deepface_thread = threading.Thread(target=self._deepface_loop, daemon=True)
       self.deepface_thread.start()
+      print(f"[Camera] Deepface thread started", flush=True)
 
   def stop(self):
     # スレッド停止イベント
@@ -171,6 +179,7 @@ class Camera:
       self.cap = None
 
   def _capture_loop(self):
+    print(f"[Camera] _capture_loop() ENTERED", flush=True)
     while not self.stop_event.is_set():
       try:
         loop_start_time = time.perf_counter()
@@ -249,7 +258,9 @@ class Camera:
       return False, None
 
     try:
+      print(f"[Camera] About to call cap.read()...", flush=True)
       ret, frame = self.cap.read()
+      print(f"[Camera] cap.read() returned ret={ret}", flush=True)
       if not ret:
         # 一時的な読み込み失敗。カメラ接続は維持したまま次のループで再試行する
         print("[Camera] cap.read() failed (ret=False)", flush=True)

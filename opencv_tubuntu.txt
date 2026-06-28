@@ -23,3 +23,24 @@ sudo apt install -y libx264-dev
 カメラデバイス確認コマンド:
 v4l2-ctl --list-devices
 v4l2-ctl -d /dev/video0 --list-formats-ext
+
+
+
+リポジトリを更新して再試行:
+sudo apt update
+sudo apt install v4l-utils
+
+それでもダメなら、v4l-utils無しで進める:
+# GStreamerのみインストール
+sudo apt update
+sudo apt install -y ffmpeg
+sudo apt install -y gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav
+
+# カメラデバイス確認（v4l-utils不要）
+ls -l /dev/video*
+
+# OpenCVがカメラを開けるか確認
+python3 -c "import cv2; cap = cv2.VideoCapture(0); print('Opened:', cap.isOpened()); cap.release()"
+
+python3 -c "import cv2; print(cv2.getBuildInformation())" | grep -i "video i/o" -A 10
+
