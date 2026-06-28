@@ -1,0 +1,13 @@
+python3 -c "import cv2; print(cv2.getBuildInformation())" | grep -E "FFMPEG|GStreamer|Video I/O" -A5
+
+sudo apt update
+sudo apt install -y ffmpeg v4l-utils \
+  gstreamer1.0-tools \
+  gstreamer1.0-libav \
+  gstreamer1.0-plugins-base \
+  gstreamer1.0-plugins-good \
+  gstreamer1.0-plugins-bad \
+  gstreamer1.0-plugins-ugly
+
+ffplay -rtsp_transport tcp "rtsp://root:password@192.168.4.245/axis-media/media.amp"
+
